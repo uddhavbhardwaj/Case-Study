@@ -1,0 +1,1066 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A product case study on why people get stuck picking something to watch, and a small fix for it.">
+<title>Reducing Decision Friction</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+html, body { margin: 0; }
+*, *::before, *::after { box-sizing: border-box; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+/* Layout: a PM's notebook page. Graph-paper ground, one reading column, handwritten margin notes in pen beside it (stacked under on phones). The prototype is a storyboard of dark TV screens joined by a hand-drawn line. */
+:root {
+  --paper: #F3F5F9;
+  --grid: rgba(43, 87, 201, 0.07);
+  --card: #FFFFFF;
+  --ink: #1D2230;
+  --ink-soft: #4A5265;
+  --pen: #2B57C9;
+  --marker: rgba(255, 208, 50, 0.55);
+  --rule: #C7CEDA;
+
+  /* The TV is the same in both themes on purpose */
+  --tv-bezel: #23272F;
+  --tv-bg: #0F1115;
+  --tv-card: #1A1D24;
+  --tv-line: #343945;
+  --tv-ink: #F2F0EB;
+  --tv-soft: #A9ADB6;
+  --tv-accent: #F2A541;
+  --tv-on-accent: #1A1206;
+
+  --f-hand: 'Kalam', 'Segoe Print', 'Bradley Hand', cursive;
+  --f-body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --f-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  --step--1: 0.8125rem;
+  --step-0: 1.0625rem;
+  --step-2: clamp(1.9rem, 4.6vw, 2.75rem);
+  --step-3: clamp(2.5rem, 7.2vw, 4.4rem);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #14171E; --grid: rgba(141, 176, 255, 0.06); --card: #1B1F28;
+    --ink: #E6E8EE; --ink-soft: #A8AFBE; --pen: #8DB0FF;
+    --marker: rgba(255, 208, 50, 0.26); --rule: #394052; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #14171E; --grid: rgba(141, 176, 255, 0.06); --card: #1B1F28;
+  --ink: #E6E8EE; --ink-soft: #A8AFBE; --pen: #8DB0FF;
+  --marker: rgba(255, 208, 50, 0.26); --rule: #394052; color-scheme: dark;
+}
+
+body {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.page {
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 56px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 96px;
+}
+.col { width: 100%; max-width: 980px; margin-inline: auto; }
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 230px;
+  gap: 44px;
+  align-items: start;
+}
+.row > * { min-width: 0; }
+.prose { max-width: 66ch; display: flex; flex-direction: column; gap: 18px; }
+.prose p { margin: 0; }
+.prose ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 10px; }
+
+a { color: var(--pen); text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--pen); outline-offset: 3px; border-radius: 4px; }
+
+/* Type roles */
+.meta, .eyebrow, .label {
+  font-family: var(--f-mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0;
+}
+h1 {
+  font-family: var(--f-hand);
+  font-weight: 300;
+  font-size: var(--step-3);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  margin: 14px 0 0;
+  max-width: 16ch;
+  text-wrap: balance;
+}
+.sub {
+  font-family: var(--f-hand);
+  font-weight: 300;
+  font-size: clamp(1.35rem, 3.2vw, 1.75rem);
+  line-height: 1.3;
+  color: var(--ink-soft);
+  margin: 10px 0 0;
+  max-width: 34ch;
+  text-wrap: balance;
+}
+h2 {
+  font-family: var(--f-hand);
+  font-weight: 300;
+  font-size: var(--step-2);
+  line-height: 1.15;
+  margin: 8px 0 28px;
+  text-wrap: balance;
+  position: relative;
+  display: inline-block;
+  padding-bottom: 10px;
+}
+.hl {
+  background: linear-gradient(100deg, transparent 0.4%, var(--marker) 2.5%, var(--marker) 96%, transparent 99%);
+  padding: 0.05em 0.25em;
+  margin: 0 -0.1em;
+  border-radius: 0.35em 0.6em 0.4em 0.7em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* Sketched boxes: a plain border until the sketch library draws, then a hand-drawn outline */
+[data-sketch] { position: relative; }
+[data-sketch="box"] { border: 1.5px solid var(--ink); border-radius: 6px; }
+[data-sketch="box"][data-pen] { border-color: var(--pen); }
+[data-sketch="box"].drawn { border-color: transparent; }
+svg.sk { position: absolute; inset: 0; pointer-events: none; overflow: visible; color: var(--ink); }
+svg.sk.pen { color: var(--pen); }
+
+/* Hero */
+.hero { display: flex; flex-direction: column; gap: 36px; }
+.tldr { background: var(--card); padding: 26px 28px; display: flex; flex-direction: column; gap: 18px; }
+.tldr dl { margin: 0; display: flex; flex-direction: column; gap: 16px; }
+.tldr .item { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 16px; align-items: baseline; }
+.tldr dt { font-family: var(--f-mono); font-size: var(--step--1); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+.tldr dd { margin: 0; }
+.tldr .readtime { margin: 4px 0 0; padding-top: 16px; border-top: 1px dashed var(--rule); font-size: 0.9375rem; color: var(--ink-soft); }
+.byline { margin: 0; font-size: 0.9375rem; color: var(--ink-soft); }
+
+/* Margin notes in pen */
+.note {
+  font-family: var(--f-hand);
+  font-weight: 400;
+  font-size: 1.3rem;
+  line-height: 1.3;
+  color: var(--pen);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.note p { margin: 0; }
+.note svg.arrow { color: var(--pen); overflow: visible; }
+.note.down-1 { padding-top: 40px; }
+.note.down-2 { padding-top: 120px; }
+.note.down-3 { padding-top: 150px; }
+
+/* Arrow pairs: research to couch, problem to fix */
+.pairs { display: flex; flex-direction: column; gap: 14px; margin-top: 8px; }
+.pairs .head, .pairs .pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+}
+.pairs .head span { font-family: var(--f-mono); font-size: var(--step--1); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+.pairs .from { background: var(--card); padding: 12px 16px; font-size: 0.9875rem; }
+.pairs .from strong { display: block; font-weight: 600; margin-bottom: 2px; }
+.pairs .says { font-family: var(--f-hand); font-size: 1.3rem; line-height: 1.3; }
+.pairs .fix { font-size: 0.9875rem; color: var(--pen); }
+.pairs svg.arrow { color: var(--ink); justify-self: center; overflow: visible; }
+.risks .pair { align-items: stretch; }
+.risks .pair svg.arrow { align-self: center; }
+.risks .fix { align-self: center; }
+
+/* Timeline of what Netflix has tried */
+.timeline { list-style: none; margin: 4px 0 0; padding: 0 0 0 26px; border-left: 2px dashed var(--rule); display: flex; flex-direction: column; gap: 22px; }
+.timeline li { position: relative; }
+.timeline li::before {
+  content: ""; position: absolute; left: -34px; top: 0.45em;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--paper); border: 2px solid var(--ink);
+}
+.timeline .when { font-family: var(--f-mono); font-size: var(--step--1); letter-spacing: 0.06em; color: var(--ink-soft); display: block; }
+.timeline .what { font-weight: 600; }
+
+/* Two options */
+.options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; margin-top: 4px; }
+.option { background: var(--card); padding: 22px 24px; display: flex; flex-direction: column; gap: 12px; }
+.option h3 { margin: 0; font-family: var(--f-hand); font-weight: 400; font-size: 1.6rem; line-height: 1.2; }
+.option p { margin: 0; }
+.option .k { font-family: var(--f-mono); font-size: var(--step--1); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); display: block; margin-bottom: 2px; }
+.option .pick { font-family: var(--f-hand); color: var(--pen); font-size: 1.25rem; margin: 0 0 -4px; }
+.option .spacer { font-family: var(--f-hand); font-size: 1.25rem; margin: 0 0 -4px; visibility: hidden; }
+
+/* Phases */
+.phases { display: flex; flex-direction: column; gap: 22px; margin-top: 4px; }
+.phase { background: var(--card); padding: 22px 24px; display: flex; flex-direction: column; gap: 10px; }
+.phase h3 { margin: 0; font-family: var(--f-hand); font-weight: 400; font-size: 1.55rem; line-height: 1.2; }
+.phase p { margin: 0; }
+.phase ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px; }
+.phase .gate { padding-top: 10px; border-top: 1px dashed var(--rule); }
+
+/* Storyboard: three moments in one evening, joined by a hand-drawn line */
+.board-intro { margin: 0 0 32px; max-width: 66ch; }
+.board { position: relative; display: flex; flex-direction: column; gap: 64px; }
+.spine { position: absolute; left: 0; top: 0; width: 56px; height: 100%; pointer-events: none; overflow: visible; }
+.spine .base { fill: none; stroke: var(--rule); stroke-width: 2; stroke-dasharray: 2 7; stroke-linecap: round; }
+.spine .ink { fill: none; stroke: var(--pen); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.frame {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) 220px;
+  grid-template-areas: "stop label ." "stop screen note";
+  column-gap: 28px;
+  row-gap: 10px;
+  align-items: start;
+}
+.frame > * { min-width: 0; }
+.stop {
+  grid-area: stop;
+  justify-self: center;
+  width: 22px; height: 22px;
+  margin-top: 6px;
+  border-radius: 50%;
+  border: 2px solid var(--pen);
+  background: var(--paper);
+  position: relative;
+  z-index: 1;
+  transition: background-color 400ms ease;
+}
+.frame.reached .stop { background: var(--pen); }
+.frame-label { grid-area: label; margin: 0; font-family: var(--f-hand); font-size: 1.5rem; line-height: 1.2; color: var(--pen); }
+.frame-label .n { font-family: var(--f-mono); font-size: var(--step--1); letter-spacing: 0.06em; color: var(--ink-soft); margin-right: 10px; }
+.frame .tv { grid-area: screen; }
+.frame .note { grid-area: note; padding-top: 18px; }
+.replay {
+  align-self: flex-start;
+  font-family: var(--f-hand);
+  font-size: 1.1rem;
+  color: var(--pen);
+  background: transparent;
+  border: none;
+  padding: 6px 0;
+  min-height: 44px;
+  cursor: pointer;
+  text-decoration: underline wavy;
+  text-underline-offset: 5px;
+}
+.tv { background: var(--tv-bezel); border-radius: 18px; padding: 12px; }
+.tv-screen {
+  container-type: inline-size;
+  background: var(--tv-bg);
+  color: var(--tv-ink);
+  border-radius: 8px;
+  padding: 18px 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  font-family: var(--f-body);
+  overflow: hidden;
+}
+.tv-nav { display: flex; align-items: center; gap: 18px; font-size: 0.875rem; color: var(--tv-soft); flex-wrap: wrap; }
+.tv-nav .logo { font-weight: 700; font-size: 1.25rem; color: var(--tv-accent); letter-spacing: -0.02em; }
+.tv-nav .here { color: var(--tv-ink); font-weight: 600; }
+.bill { background: #1C2731; border-radius: 8px; padding: 18px 20px; display: flex; flex-direction: column; gap: 4px; }
+.bill .k { font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--tv-soft); }
+.bill .t { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.bill .m { font-size: 0.875rem; color: #C9CCD2; }
+.tv-row h4 { margin: 0 0 8px; font-size: 0.9375rem; font-weight: 600; }
+.tiles { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(118px, 1fr); gap: 10px; overflow-x: auto; padding: 3px; }
+.tile { height: 70px; border-radius: 6px; padding: 8px 10px; display: flex; align-items: flex-end; font-size: 0.8125rem; font-weight: 600; color: var(--tv-ink); box-sizing: border-box; }
+.tile.focus { outline: 2px solid var(--tv-ink); outline-offset: 2px; }
+.dim { opacity: 0.45; }
+.signals {
+  border: 1.5px dashed var(--tv-accent);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-family: var(--f-mono);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--tv-ink);
+}
+.signals b { color: var(--tv-accent); font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; display: block; }
+.signals .met { display: block; margin-top: 4px; color: var(--tv-accent); font-weight: 500; }
+.signals.counting .met { visibility: hidden; }
+.three { position: relative; border: 1px solid var(--tv-line); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+svg.mark { position: absolute; left: -6px; top: -6px; pointer-events: none; overflow: visible; }
+.three-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.three-head h4 { margin: 0; font-size: 1.05rem; font-weight: 700; }
+.three-head span { font-size: 0.8125rem; color: var(--tv-soft); }
+.picks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; perspective: 900px; }
+.pickc { background: var(--tv-card); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
+.pickc .art { height: 64px; padding: 8px 12px; display: flex; align-items: flex-end; font-weight: 700; font-size: 1rem; line-height: 1.15; }
+.pickc .body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 6px; font-size: 0.8125rem; line-height: 1.45; }
+.pickc .slot { font-family: var(--f-mono); font-size: 0.6875rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--tv-accent); }
+.pickc .meta2 { color: var(--tv-soft); }
+.pickc .why { color: var(--tv-ink); }
+.bar { height: 5px; border-radius: 3px; background: #2A2E37; margin-top: 2px; }
+.bar i { display: block; height: 5px; border-radius: 3px; background: var(--tv-accent); }
+.bar.early i { background: repeating-linear-gradient(90deg, var(--tv-accent) 0 6px, transparent 6px 10px); }
+.sig { color: var(--tv-soft); font-size: 0.75rem; }
+.chips { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 0.8125rem; color: var(--tv-soft); }
+.chips button {
+  position: relative;
+  font-family: var(--f-body);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--tv-line);
+  background: var(--tv-card);
+  color: var(--tv-ink);
+  cursor: pointer;
+}
+.chips button.on { background: var(--tv-accent); border-color: var(--tv-accent); color: var(--tv-on-accent); }
+.chips button.live:not(.on) { border-color: var(--tv-ink); }
+.chips button:focus-visible { outline: 2px solid var(--tv-accent); outline-offset: 2px; }
+.chips .hint { flex-basis: 100%; font-size: 0.75rem; color: var(--tv-soft); min-height: 1.2em; }
+@container (max-width: 600px) {
+  .picks { grid-template-columns: minmax(0, 1fr); }
+  .pickc { flex-direction: row; }
+  .pickc .art { width: 34%; height: auto; min-height: 96px; flex-shrink: 0; }
+}
+
+/* Motion: each animation shows one step of the idea */
+.signals.flash { animation: flash 900ms ease; }
+@keyframes flash {
+  0% { box-shadow: 0 0 0 0 rgba(242, 165, 65, 0); }
+  35% { box-shadow: 0 0 0 6px rgba(242, 165, 65, 0.35); }
+  100% { box-shadow: 0 0 0 0 rgba(242, 165, 65, 0); }
+}
+.three.arrive { animation: arrive 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes arrive { from { opacity: 0.2; transform: translateY(-16px) scale(0.97); } to { opacity: 1; transform: none; } }
+.below.arrive { animation: push 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes push { from { opacity: 1; transform: translateY(-120px); } to { opacity: 0.45; transform: none; } }
+.pickc.flip-out { animation: flipOut 220ms ease-in forwards; }
+@keyframes flipOut { to { opacity: 0.15; transform: rotateX(90deg); } }
+.pickc.flip-in { animation: flipIn 280ms ease-out; }
+@keyframes flipIn { from { opacity: 0.15; transform: rotateX(-90deg); } to { opacity: 1; transform: none; } }
+.chips button.tap::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border: 2px solid var(--tv-accent);
+  border-radius: 999px;
+  animation: ring 650ms ease-out forwards;
+}
+@keyframes ring { from { opacity: 1; transform: scale(0.8); } to { opacity: 0; transform: scale(1.3); } }
+@media (prefers-reduced-motion: reduce) {
+  .signals.flash, .three.arrive, .below.arrive, .pickc.flip-out, .pickc.flip-in, .chips button.tap::after { animation: none !important; }
+  .stop { transition: none; }
+}
+
+/* Closing */
+.about { background: var(--card); padding: 22px 24px; display: flex; flex-direction: column; gap: 10px; }
+.about p { margin: 0; }
+.placeholder { font-family: var(--f-mono); font-size: 0.875rem; background: var(--marker); padding: 1px 6px; border-radius: 4px; }
+
+/* Sources, grouped by what they support */
+.src-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px 44px; }
+.src-group { min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+.src-group h3 { margin: 0; font-family: var(--f-hand); font-weight: 400; font-size: 1.45rem; color: var(--pen); }
+.src-group ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.src-group li { padding-left: 14px; border-left: 2px solid var(--rule); }
+.src-group a { overflow-wrap: anywhere; }
+.src-group .what { display: block; color: var(--ink-soft); font-size: 0.9375rem; }
+.disclaimer { margin: 36px 0 0; font-size: 0.875rem; color: var(--ink-soft); }
+
+@media (max-width: 820px) {
+  .row { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .note.down-1, .note.down-2, .note.down-3 { padding-top: 0; flex-direction: row; align-items: center; gap: 10px; }
+  .note svg.arrow { transform: rotate(-90deg); flex-shrink: 0; }
+  .page { gap: 72px; padding-block: 36px 64px; }
+  .options { grid-template-columns: minmax(0, 1fr); }
+  .option .spacer { display: none; }
+  .src-groups { grid-template-columns: minmax(0, 1fr); }
+  .spine { width: 32px; }
+  .frame {
+    grid-template-columns: 32px minmax(0, 1fr);
+    grid-template-areas: "stop label" "stop screen" "stop note";
+    column-gap: 14px;
+  }
+  .frame .note { padding-top: 2px; }
+  .board { gap: 48px; }
+}
+@media (max-width: 560px) {
+  .tldr { padding: 20px 18px; }
+  .tldr .item { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .pairs .head { display: none; }
+  .pairs .pair { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .pairs svg.arrow { transform: rotate(90deg); height: 40px; }
+  .tv { padding: 8px; border-radius: 14px; }
+  .tv-screen { padding: 14px 12px 16px; }
+}
+</style>
+</head>
+<body>
+
+<main class="page">
+
+  <header class="hero col">
+    <div>
+      <p class="meta">Product case study · Streaming discovery · October 2026</p>
+      <h1>Reducing Decision Friction in Streaming Discovery</h1>
+      <p class="sub">Why 1 in 5 people give up on picking something to watch, and what I'd try.</p>
+    </div>
+
+    <div class="row">
+      <section class="tldr" data-sketch="box" aria-label="Summary">
+        <dl>
+          <div class="item">
+            <dt>What bugged me</dt>
+            <dd>People in the US say they spend about 12 minutes looking for something to watch, and about 1 in 5 streaming viewers say they'd give up on watching if the search doesn't work out. If you've ever closed the app and opened Instagram instead, you're in that group.</dd>
+          </div>
+          <div class="item">
+            <dt>What I learned</dt>
+            <dd>Netflix already adjusts for things like time of day and the device you're on. What it can't easily know is what you need tonight: that you're wiped out, only have half an hour, or have someone on the couch with you. There's no quick way to tell it.</dd>
+          </div>
+          <div class="item">
+            <dt>What I'd do</dt>
+            <dd><span class="hl">When someone has been clicking around for a while without picking anything, add one row with three picks, each with a short reason, plus an easy way to say what you're after tonight.</span> Then test whether it helps people find something they're glad they picked.</dd>
+          </div>
+        </dl>
+        <p class="readtime">Only have two minutes? Read this box and <a href="#prototype">scroll through the prototype</a>.</p>
+      </section>
+
+      <aside class="note down-3" aria-label="Margin note">
+        <svg class="arrow" data-arrow="left" width="56" height="28" aria-hidden="true"></svg>
+        <p>this row is the whole idea. you can watch it play out further down</p>
+      </aside>
+    </div>
+
+    <p class="byline">Uddhav Bhardwaj · MBA candidate, Emory Goizueta Business School · <a href="#about">About me</a></p>
+  </header>
+
+  <section class="col" aria-labelledby="scroll-h">
+    <p class="eyebrow">The problem</p>
+    <h2 id="scroll-h" data-sketch="underline">The 9pm scroll</h2>
+    <div class="row">
+      <div class="prose">
+        <p>You probably know the routine. It's a weeknight, you open Netflix, scroll past thirty-something titles, open two of them, back out of both, and ten minutes later you're on your phone.</p>
+        <p>This isn't a niche problem. In Gracenote's 2025 State of Play survey of 3,000 streaming viewers in six countries, people in the US said they spend about 12 minutes searching for something to watch, up from 10.5 minutes in 2023. About one in five said they'd abandon the session if their search didn't turn anything up, and 45% called the whole streaming experience overwhelming.</p>
+        <p>It may also affect whether people stay. In the same survey, 49% said they'd be willing to cancel a service because it's hard to find something to watch.</p>
+        <p>These are things people say in a survey, across all streaming services. They aren't Netflix's numbers, and saying you'd cancel isn't the same as cancelling. Still, the direction is hard to ignore.</p>
+      </div>
+      <aside class="note down-1" aria-label="Margin note">
+        <svg class="arrow" data-arrow="left" width="56" height="28" aria-hidden="true"></svg>
+        <p>the one that stuck with me: nearly half would think about cancelling over this.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="col" id="nuance" aria-labelledby="nuance-h">
+    <p class="eyebrow">Where I was wrong</p>
+    <h2 id="nuance-h" data-sketch="underline">I assumed it was too many choices</h2>
+
+    <div class="row">
+      <div class="prose">
+        <p>My starting point was the explanation everyone reaches for: Netflix has so much stuff that people freeze. So I went looking for the research behind it, expecting it to be solid.</p>
+        <p>It wasn't, at least not in the simple version. When researchers pooled 50 experiments in 2010, the average choice-overload effect came out close to zero. Some studies found a strong effect and plenty found none.</p>
+        <p>Research on recommendations tells a similar story. A 2010 study found that showing people a bigger set of good recommendations didn't make them more satisfied with what they picked. And a 2025 field experiment with 1.6 million online shoppers found that buying went up and then down as more recommended products were shown. Up to 64% of that drop came from people not clicking on anything at all.</p>
+        <p>Neither study tells you the right number of picks for Netflix, and the second one is about shopping, not TV. What they did change is the question I was asking. I stopped asking how many options is too many and started asking what makes someone feel sure enough to start.</p>
+        <p>A 2015 review helped with that, because it looked at when overload actually shows up: when the options are hard to compare, when the decision feels like it matters, when people aren't sure what they want, and when they need to pick right now instead of just looking around. Read that list again and it sounds a lot like a weeknight on the couch:</p>
+
+        <div class="pairs" role="list">
+          <div class="head" aria-hidden="true"><span>What the research says</span><span></span><span>What it sounds like at 9pm</span></div>
+          <div class="pair" role="listitem">
+            <div class="from" data-sketch="box">People aren't sure what they want</div>
+            <svg class="arrow" data-arrow="right" width="64" height="24" aria-hidden="true"></svg>
+            <div class="says">"I honestly don't know what I feel like watching."</div>
+          </div>
+          <div class="pair" role="listitem">
+            <div class="from" data-sketch="box">They need to pick right now</div>
+            <svg class="arrow" data-arrow="right" width="64" height="24" aria-hidden="true"></svg>
+            <div class="says">"I've got an hour before bed. Something, please."</div>
+          </div>
+          <div class="pair" role="listitem">
+            <div class="from" data-sketch="box">The decision feels like it matters</div>
+            <svg class="arrow" data-arrow="right" width="64" height="24" aria-hidden="true"></svg>
+            <div class="says">"What if I start this and it's bad?"</div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="note down-2" aria-label="Margin note">
+        <svg class="arrow" data-arrow="left" width="56" height="28" aria-hidden="true"></svg>
+        <p>this is where the project changed direction. I stopped thinking about showing people more and started thinking about <span class="hl">how to make them feel sure about one thing.</span></p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="col" aria-labelledby="tried-h">
+    <p class="eyebrow">What's been tried</p>
+    <h2 id="tried-h" data-sketch="underline">Netflix has been working on this for years</h2>
+    <div class="row">
+      <div class="prose">
+        <p>Before suggesting anything, I wanted to see what Netflix had already tried.</p>
+        <ol class="timeline">
+          <li><span class="when">2021</span><span class="what">Fast Laughs.</span> A vertical feed of comedy clips on mobile, pitched as a way to discover shows.</li>
+          <li><span class="when">2021</span><span class="what">Play Something.</span> One button, and Netflix picks something for you.</li>
+          <li><span class="when">January 2023</span><span class="what">Play Something is removed.</span> Not enough people used it.</li>
+          <li><span class="when">2026</span><span class="what">Clips.</span> A personalized vertical feed of previews in the redesigned mobile app.</li>
+        </ol>
+        <p>Two things stood out to me. Play Something suggests people don't want to hand the decision over completely, even when they're stuck. And Clips lives on phones. Netflix said back in 2018 that about 70% of its streams happened on TVs. I couldn't find a recent public number, so designing for the TV is my choice of focus rather than something I can prove is the bigger problem.</p>
+      </div>
+      <aside class="note down-3" aria-label="Margin note">
+        <svg class="arrow" data-arrow="left" width="56" height="28" aria-hidden="true"></svg>
+        <p>one went away, the other lives on phones. neither really helps someone stuck on the couch at 9pm.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="col" aria-labelledby="idea-h">
+    <p class="eyebrow">The idea</p>
+    <h2 id="idea-h" data-sketch="underline">Netflix knows my usual Tuesday. It doesn't know this one.</h2>
+    <div class="row">
+      <div class="prose">
+        <p>Netflix already pays attention to context. Its help center says recommendations take into account the time of day, the device you're on, how long you watch and whether you finish things, with recent viewing counting more than older viewing. Researchers have argued for this for years: what's worth recommending depends on circumstances like when you're watching and who's with you.</p>
+        <p>What Netflix can't see is how you feel tonight. Psychologists who study media choice have found that people pick entertainment partly to change their mood. In one classic experiment, stressed people chose more relaxing programs and bored people chose more exciting ones. So "I usually like thrillers" and "I want something easy tonight" can both be true.</p>
+        <p><span class="hl">My hypothesis: some stuck sessions happen when what you need right now doesn't match what the app has guessed.</span> If that's right, giving people a quick way to say so should help.</p>
+        <p>Nothing I found proves that stuck nights are unusual nights. It's the first thing I'd want to check.</p>
+      </div>
+      <aside class="note down-2" aria-label="Margin note">
+        <svg class="arrow" data-arrow="left" width="56" height="28" aria-hidden="true"></svg>
+        <p>if this one is wrong, most of the rest falls apart too</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="col" aria-labelledby="options-h">
+    <p class="eyebrow">Two options</p>
+    <h2 id="options-h" data-sketch="underline">Two ways I could have gone</h2>
+    <div class="options">
+      <div class="option" data-sketch="box">
+        <p class="spacer" aria-hidden="true">my pick</p>
+        <h3>A feed for stuck viewers</h3>
+        <p>Send people who seem stuck into a vertical feed of clips.</p>
+        <p><span class="k">Going for it</span>It's engaging, and Netflix has mostly built it already with Clips.</p>
+        <p><span class="k">Against it</span>It's on phones, it adds even more things to choose from, and clips designed to hook you can oversell a show.</p>
+      </div>
+      <div class="option" data-sketch="box" data-pen>
+        <p class="pick">my pick ↓</p>
+        <h3>Tonight's three</h3>
+        <p>When someone seems stuck, add one row with three picks, each with a reason, and an easy way to say what you want tonight.</p>
+        <p><span class="k">Going for it</span>It works on TV, it needs no new content, and it goes after the actual problem, which is not feeling sure.</p>
+        <p><span class="k">Against it</span>It depends on spotting stuck people correctly, and it can't end up burying new shows.</p>
+      </div>
+    </div>
+    <div class="prose" style="margin-top: 24px">
+      <p>I went with the second one, mostly because of the TV point, and because Play Something suggests people still want to be the ones choosing.</p>
+    </div>
+  </section>
+
+  <section class="col" id="prototype" aria-labelledby="proto-h">
+    <p class="eyebrow">The design</p>
+    <h2 id="proto-h" data-sketch="underline">One evening, three moments</h2>
+    <p class="board-intro">Here's how it would play out for one person on a Tuesday night. Scroll through it, or tap "Lighter tonight" in the screens to try it yourself. The shows and numbers are made up.</p>
+
+    <div class="board" id="board">
+      <svg class="spine" id="spine" aria-hidden="true"><path class="base"></path><path class="ink"></path></svg>
+
+      <div class="frame" data-frame="1">
+        <span class="stop" aria-hidden="true"></span>
+        <p class="frame-label"><span class="n">9:02pm</span>browsing, not picking</p>
+        <div class="tv"><div class="tv-screen" id="tv1"></div></div>
+        <div class="note">
+          <p>nothing changes on screen yet. behind the scenes, the app notices someone hopping between titles for over two minutes without picking, which is longer than they usually take.</p>
+          <button class="replay" type="button" data-replay="1">↻ replay</button>
+        </div>
+      </div>
+
+      <div class="frame" data-frame="2">
+        <span class="stop" aria-hidden="true"></span>
+        <p class="frame-label"><span class="n">9:04pm</span>the row shows up</p>
+        <div class="tv"><div class="tv-screen" id="tv2" data-lighter="0"></div></div>
+        <div class="note">
+          <p>one row slides in right where their focus already is. the rows they were browsing are still there, just underneath.</p>
+          <button class="replay" type="button" data-replay="2">↻ replay</button>
+        </div>
+      </div>
+
+      <div class="frame" data-frame="3">
+        <span class="stop" aria-hidden="true"></span>
+        <p class="frame-label"><span class="n">9:05pm</span>one tap: lighter tonight</p>
+        <div class="tv"><div class="tv-screen" id="tv3" data-lighter="1"></div></div>
+        <div class="note">
+          <p>their taste stays the same, the picks just get lighter and shorter. the comfort pick doesn't move because it already fit.</p>
+          <button class="replay" type="button" data-replay="3">↻ replay</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="prose" style="margin-top: 36px">
+      <p>Each of the three picks has a job:</p>
+      <ul>
+        <li><strong>Safe bet.</strong> The strongest match for you. Netflix already uses whether people finish titles as a signal, so "people like you finished this" could be one part of how confident the pick is. Finishing something doesn't prove you loved it, though, so it shouldn't be the only part.</li>
+        <li><strong>New for you.</strong> A slot saved for new releases, so they don't get pushed out by older hits.</li>
+        <li><strong>Comfort.</strong> Something familiar, like the next episode of a show you're already in the middle of.</li>
+      </ul>
+      <p>The chips ask what you want ("lighter," "short"), not how you feel ("tired"). Mood research is as much about people changing their mood as matching it, so "I'm tired" doesn't tell you whether someone wants a comedy or something calm. Which kind of question people find easier to answer is something I'd test.</p>
+      <p>I'd also test the one-line reasons. Research on recommendation explanations found that a reason can make a pick more appealing without helping people choose better. So I'd compare no reason, a reason about tonight ("fits your 30 minutes") and a reason about history ("because you watched The Long Dark").</p>
+    </div>
+  </section>
+
+  <section class="col" aria-labelledby="risks-h">
+    <p class="eyebrow">What could go wrong</p>
+    <h2 id="risks-h" data-sketch="underline">Where I think this could break</h2>
+    <div class="pairs risks" role="list">
+      <div class="head" aria-hidden="true"><span>The problem</span><span></span><span>What I'd do about it</span></div>
+      <div class="pair" role="listitem">
+        <div class="from" data-sketch="box"><strong>Why only stuck people?</strong>If three picks with reasons help, maybe everyone should get them.</div>
+        <svg class="arrow" data-arrow="right" width="64" height="24" aria-hidden="true"></svg>
+        <div class="fix">I honestly don't know, so I'd test both.</div>
+      </div>
+      <div class="pair" role="listitem">
+        <div class="from" data-sketch="box"><strong>Nobody taps the chips.</strong>Asking people to tap something is exactly what Play Something showed they avoid.</div>
+        <svg class="arrow" data-arrow="right" width="64" height="24" aria-hidden="true"></svg>
+        <div class="fix">Let the picks adjust on their own first. The chips are a backup, and if nobody uses them, they go.</div>
+      </div>
+      <div class="pair" role="listitem">
+        <div class="from" data-sketch="box"><strong>The reasons sell instead of help.</strong>A good-sounding reason can make a bad pick look great.</div>
+        <svg class="arrow" data-arrow="right" width="64" height="24" aria-hidden="true"></svg>
+        <div class="fix">Judge the reasons by whether people were glad they picked the show, not by how many clicks they get.</div>
+      </div>
+      <div class="pair" role="listitem">
+        <div class="from" data-sketch="box"><strong>Completion favors popular, short stuff.</strong>Recommenders already lean toward popular titles, and a sitcom episode will always get finished more often than a two-hour film.</div>
+        <svg class="arrow" data-arrow="right" width="64" height="24" aria-hidden="true"></svg>
+        <div class="fix">Compare shows with shows and films with films, and keep one slot for new releases.</div>
+      </div>
+      <div class="pair" role="listitem">
+        <div class="from" data-sketch="box"><strong>Spotting "stuck" is messy.</strong>A remote that hasn't moved in two minutes might mean a phone call, not a stuck person.</div>
+        <svg class="arrow" data-arrow="right" width="64" height="24" aria-hidden="true"></svg>
+        <div class="fix">Only count active browsing, compare people to their own normal, and start strict.</div>
+      </div>
+      <div class="pair" role="listitem">
+        <div class="from" data-sketch="box"><strong>Moving things around on a TV is confusing.</strong>On a remote, where you are on the screen is everything.</div>
+        <svg class="arrow" data-arrow="right" width="64" height="24" aria-hidden="true"></svg>
+        <div class="fix">Add the row where the person already is, and leave the rest of the page alone.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="col" aria-labelledby="plan-h">
+    <p class="eyebrow">How I'd test it</p>
+    <h2 id="plan-h" data-sketch="underline">What I'd actually do first</h2>
+    <div class="row">
+      <div class="phases">
+        <div class="phase" data-sketch="box">
+          <p class="label">Phase 0 · 2–3 weeks · no engineering</p>
+          <h3>Check that the problem is real</h3>
+          <p>Look at how often people browse for a couple of minutes without picking anything, and whether people who do that a lot are more likely to cancel. Then ask 20–30 people about the last time they had trouble choosing:</p>
+          <ul>
+            <li>What happened?</li>
+            <li>How were you feeling, who were you with, and how much time did you have? Was that night typical for you?</li>
+            <li>What did you end up doing, and why?</li>
+          </ul>
+          <p>Also ask about a night when choosing was easy, so there's something to compare against.</p>
+          <p class="gate"><span class="hl">Only keep going if stuck sessions are common and the stories point to mismatched needs,</span> rather than something else, like nothing good in the catalog.</p>
+        </div>
+        <div class="phase" data-sketch="box">
+          <p class="label">Phase 1 · 4–5 weeks</p>
+          <h3>Ship just the row</h3>
+          <p>Split people three ways: no row, the row for everyone, and the row only when someone looks stuck. For each, measure three separate things:</p>
+          <ul>
+            <li>Did they engage with any of the three picks at all?</li>
+            <li>Did they start something and watch it for 10+ minutes?</li>
+            <li>When asked, did they say it was a good pick for them?</li>
+          </ul>
+          <p class="gate"><strong>Also watch:</strong> plays of new titles, how much of it is rewatching, and whether people who weren't stuck find it annoying.</p>
+        </div>
+        <div class="phase" data-sketch="box">
+          <p class="label">Phase 2</p>
+          <h3>Add the extras one at a time</h3>
+          <p>The completion signal, the chips, the reason wording and the automatic mood shift each get tested on their own. Anything that doesn't help gets cut.</p>
+        </div>
+        <p style="margin: 0; max-width: 66ch">Netflix's own product leaders have described judging changes through A/B tests that look at whether members keep watching and stick around. A few weeks of testing like this can show whether people pick better. Whether they stay longer would need a longer experiment.</p>
+      </div>
+      <aside class="note down-1" aria-label="Margin note">
+        <svg class="arrow" data-arrow="left" width="56" height="28" aria-hidden="true"></svg>
+        <p>phase 0 is the cheapest step. it might show this isn't worth building, which would still be a useful answer.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="col" id="about" aria-labelledby="ask-h">
+    <p class="eyebrow">A question for you</p>
+    <h2 id="ask-h" data-sketch="underline">What did I get wrong?</h2>
+    <div class="row">
+      <div class="prose">
+        <p>I put this together from the outside, so I'm sure I missed things. I'd really like to hear where it falls apart, and especially whether the idea about unusual nights matches anything you've seen.</p>
+        <div class="about" data-sketch="box">
+          <p class="label">About me</p>
+          <p>I'm Uddhav, an MBA student at Emory's Goizueta Business School, graduating in January 2027. Before that I worked in digital banking at Ujjivan Small Finance Bank in India, did a technical PM internship at Voysn, and started Anvesa, a marketplace for adventure sports. I'm hoping to work in product after I graduate.</p>
+          <p>LinkedIn: <span class="placeholder">[add your LinkedIn link]</span></p>
+        </div>
+        <p>Thanks for taking a look.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="col" id="sources" aria-labelledby="sources-h">
+    <p class="eyebrow">Sources</p>
+    <h2 id="sources-h" data-sketch="underline">Where this comes from</h2>
+    <div class="src-groups">
+      <div class="src-group">
+        <h3>How people pick what to watch</h3>
+        <ul>
+          <li><a href="https://gracenote.com/newsroom/new-gracenote-report-highlights-impact-of-ineffective-content-discovery-on-consumer-happiness-with-streaming/">Gracenote (Nielsen), 2025 State of Play</a><span class="what">Survey of 3,000 viewers in six countries: 12 minutes searching in the US (up from 10.5 in 2023), 19% would abandon a session after an unsuccessful search, 45% find streaming overwhelming, 49% willing to cancel over it.</span></li>
+          <li><a href="https://www.cbsnews.com/amp/losangeles/news/study-finds-the-many-streaming-choices-overwhelm-audiences-steering-some-to-turn-the-tv-off">Nielsen, State of Play (2023)</a><span class="what">The earlier 10.5-minute figure.</span></li>
+          <li><a href="https://onlinelibrary.wiley.com/doi/10.1002/9781118783764.wbieme0085">Mood management theory, International Encyclopedia of Media Effects</a><span class="what">Overview, including the classic finding that stressed viewers chose relaxing programs and bored viewers chose exciting ones.</span></li>
+          <li><a href="http://arno.uvt.nl/show.cgi?fid=80148">Knobloch &amp; Zillmann (2002), "Mood Management via the Digital Jukebox," Journal of Communication</a><span class="what">People in worse moods chose more energetic, joyful music. About music, not TV.</span></li>
+        </ul>
+      </div>
+      <div class="src-group">
+        <h3>Choice overload</h3>
+        <ul>
+          <li><a href="https://ideas.repec.org/a/oup/jconrs/v37y2010i3p409-425.html">Scheibehenne, Greifeneder &amp; Todd (2010), Journal of Consumer Research</a><span class="what">Meta-analysis of 50 experiments: average effect close to zero, with wide variation.</span></li>
+          <li><a href="https://insight.kellogg.northwestern.edu/article/what-predicts-consumer-choice-overload">Chernev, Böckenholt &amp; Goodman (2015), Journal of Consumer Psychology</a><span class="what">Overload is more likely with hard-to-compare options, hard decisions, uncertain preferences and a need to choose now.</span></li>
+          <li><a href="https://dl.acm.org/doi/pdf/10.1145/1864708.1864724">Bollen, Knijnenburg, Willemsen &amp; Graus (2010), "Understanding Choice Overload in Recommender Systems," ACM RecSys</a><span class="what">Bigger sets of good recommendations didn't increase satisfaction with the choice.</span></li>
+          <li><a href="https://ideas.repec.org/a/inm/ormsom/v27y2025i1p249-268.html">Long, Sun, Dai, Zhang et al. (2025), "The Choice Overload Effect in Online Recommender Systems," M&amp;SOM</a><span class="what">Field experiment with 1.6 million shoppers: purchases rose then fell as more products were recommended; up to 64% of the drop came from people not clicking anything.</span></li>
+        </ul>
+      </div>
+      <div class="src-group">
+        <h3>How recommendations work</h3>
+        <ul>
+          <li><a href="https://link.springer.com/chapter/10.1007/978-0-387-85820-3_7">Adomavicius &amp; Tuzhilin (2011), "Context-Aware Recommender Systems," Recommender Systems Handbook</a><span class="what">Why recommendations should account for context such as time and who you're with.</span></li>
+          <li><a href="https://link.springer.com/article/10.1007/s11257-011-9117-5">Tintarev &amp; Masthoff (2012), User Modeling and User-Adapted Interaction</a><span class="what">Explanations serve different goals; a reason that makes a pick more appealing doesn't always help people choose better.</span></li>
+          <li><a href="https://ar5iv.labs.arxiv.org/html/1901.07555">Abdollahpouri, Burke &amp; Mobasher (2019), "Managing Popularity Bias in Recommender Systems"</a><span class="what">Recommenders over-favor popular items, so newer and niche titles get recommended less.</span></li>
+        </ul>
+      </div>
+      <div class="src-group">
+        <h3>Netflix</h3>
+        <ul>
+          <li><a href="https://help.netflix.com/en/node/100639">Netflix Help Center, how recommendations work</a><span class="what">Uses time of day, device, how long you watch and whether you finish titles; recent viewing counts more.</span></li>
+          <li><a href="https://dl.acm.org/doi/10.1145/2843948">Gomez-Uribe &amp; Hunt (2015), "The Netflix Recommender System," ACM TMIS</a><span class="what">How Netflix evaluates changes with A/B tests focused on retention and engagement.</span></li>
+          <li><a href="https://techcrunch.com/2021/03/03/netflix-launches-fast-laughs-a-tiktok-like-feed-of-funny-videos/">TechCrunch on Fast Laughs (2021)</a><span class="what">A vertical feed of comedy clips on mobile.</span></li>
+          <li><a href="https://www.tomsguide.com/news/netflix-just-killed-a-feature-that-seemed-like-a-great-idea">Tom's Guide, citing the WSJ, on Play Something</a><span class="what">Launched in 2021; removed in January 2023 for low usage.</span></li>
+          <li><a href="https://www.thewrap.com/?p=8009945">TheWrap on Clips (2026)</a><span class="what">A personalized vertical video feed in the redesigned mobile app.</span></li>
+          <li><a href="https://www.artsjournal.org/?p=144345">Netflix on TV viewing (2018)</a><span class="what">About 70% of streams on connected TVs at the time. No recent public figure found.</span></li>
+        </ul>
+      </div>
+    </div>
+    <p class="disclaimer">Independent student case study, not affiliated with Netflix. Show titles and numbers in the prototype are made up. Survey figures are self-reported and cover streaming services in general.</p>
+  </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/roughjs@4.6.6/bundled/rough.js"></script>
+<script>
+(function () {
+  var NS = 'http://www.w3.org/2000/svg';
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- Hand-drawn boxes, underlines and arrows ---------- */
+  function sketch() {
+    if (!window.rough) return;
+    var pen = getComputedStyle(document.documentElement).getPropertyValue('--pen').trim() || 'currentColor';
+    document.querySelectorAll('[data-sketch]').forEach(function (el, i) {
+      var svg = el.querySelector(':scope > svg.sk');
+      if (!svg) {
+        svg = document.createElementNS(NS, 'svg');
+        svg.setAttribute('class', 'sk' + (el.hasAttribute('data-pen') ? ' pen' : ''));
+        svg.setAttribute('aria-hidden', 'true');
+        el.appendChild(svg);
+      }
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+      var w = el.offsetWidth, h = el.offsetHeight;
+      if (!w || !h) return;
+      svg.setAttribute('width', w); svg.setAttribute('height', h);
+      var rc = rough.svg(svg);
+      var o = { stroke: 'currentColor', strokeWidth: 1.4, roughness: 1.2, bowing: 1.4, seed: 11 + i };
+      if (el.getAttribute('data-sketch') === 'box') {
+        svg.appendChild(rc.rectangle(2, 2, w - 4, h - 4, o));
+        el.classList.add('drawn');
+      } else {
+        o.strokeWidth = 1.8; o.stroke = pen;
+        svg.appendChild(rc.line(2, h - 3, w - 4, h - 5, o));
+      }
+    });
+
+    document.querySelectorAll('svg.arrow').forEach(function (svg, i) {
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+      var rc = rough.svg(svg);
+      var w = +svg.getAttribute('width'), h = +svg.getAttribute('height');
+      var o = { stroke: 'currentColor', strokeWidth: 1.5, roughness: 1, seed: 40 + i };
+      if (svg.getAttribute('data-arrow') === 'left') {
+        svg.appendChild(rc.curve([[w - 2, h * 0.25], [w * 0.55, h * 0.1], [w * 0.2, h * 0.55], [4, h * 0.6]], o));
+        svg.appendChild(rc.line(4, h * 0.6, 14, h * 0.3, o));
+        svg.appendChild(rc.line(4, h * 0.6, 16, h * 0.85, o));
+      } else {
+        svg.appendChild(rc.line(4, h / 2, w - 6, h / 2, o));
+        svg.appendChild(rc.line(w - 6, h / 2, w - 16, h / 2 - 7, o));
+        svg.appendChild(rc.line(w - 6, h / 2, w - 16, h / 2 + 7, o));
+      }
+    });
+    drawMark(document.getElementById('tv2'), false);
+  }
+  var t;
+  function redraw() { clearTimeout(t); t = setTimeout(function () { sketch(); drawSpine(); }, 120); }
+
+  /* ---------- Storyboard prototype ---------- */
+  var ROW1 = [
+    ['Under the Ice', '#26404A'], ['Quiet Hours', '#3D3350'], ['The Hollow Road', '#4A2E2E'],
+    ['Static', '#2E4A3B'], ['Night Ferry', '#2B3A4A'], ['Grey Harbor', '#4A4030']
+  ];
+  var ROW2 = [
+    ['Corner Diner', '#4A3A2B'], ['Fault Lines', '#2B3F4A'], ['The Lighthouse Club', '#33463A'],
+    ['Late Shift', '#46304A'], ['Paper Moons', '#3A3A4E'], ['Tideline', '#2E4446']
+  ];
+  var PICKS = {
+    usual: [
+      { slot: 'Safe bet', title: 'The Hollow Road', bg: '#4A2E2E', meta: '55 min · Slow-burn horror · Episode 1', why: 'Because you finished The Long Dark', bar: 80, sig: '8 in 10 viewers with your taste finished it' },
+      { slot: 'New for you', title: 'Fault Lines', bg: '#2B3F4A', meta: 'New this week · 48 min · Thriller', why: 'From the director of Grey Harbor', bar: 60, early: 1, sig: 'Early viewers with your taste are finishing it' },
+      { slot: 'Comfort', title: 'Corner Diner', bg: '#4A3A2B', meta: 'Season 3, Episode 8 · 22 min', why: "The next episode of a show you're in the middle of", sig: "You're 2 seasons in" }
+    ],
+    lighter: [
+      { slot: 'Safe bet', title: 'Grave Mistakes', bg: '#46304A', meta: '25 min · Dark comedy · Episode 1', why: 'The dark tone you like, at half the length', bar: 90, sig: '9 in 10 viewers with your taste finished it' },
+      { slot: 'New for you', title: 'The Lighthouse Club', bg: '#33463A', meta: 'New this week · 42 min · Cozy mystery', why: 'A mystery without the dread', bar: 55, early: 1, sig: 'Early viewers with your taste are finishing it' },
+      { slot: 'Comfort', title: 'Corner Diner', bg: '#4A3A2B', meta: 'Season 3, Episode 8 · 22 min', why: "The next episode of a show you're in the middle of", sig: "You're 2 seasons in" }
+    ]
+  };
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function tiles(list, focusIdx, id) {
+    return '<div class="tiles"' + (id ? ' id="' + id + '"' : '') + '>' + list.map(function (x, i) {
+      return '<div class="tile' + (i === focusIdx ? ' focus' : '') + '" style="background:' + x[1] + '">' + esc(x[0]) + '</div>';
+    }).join('') + '</div>';
+  }
+  function cardHTML(p) {
+    var bar = p.bar ? '<div class="bar' + (p.early ? ' early' : '') + '" aria-hidden="true"><i style="width:' + p.bar + '%"></i></div>' : '';
+    return '<article class="pickc" data-title="' + esc(p.title) + '"><div class="art" style="background:' + p.bg + '">' + esc(p.title) + '</div>' +
+      '<div class="body"><span class="slot">' + esc(p.slot) + '</span><span class="meta2">' + esc(p.meta) + '</span>' +
+      '<span class="why">' + esc(p.why) + '</span>' + bar + '<span class="sig">' + esc(p.sig) + '</span></div></article>';
+  }
+  function threeHTML(lighter) {
+    return '<section class="three" aria-label="Tonight\'s three"><svg class="mark" aria-hidden="true"></svg>' +
+      '<div class="three-head"><h4>Tonight\'s three</h4><span>Tuesday, 9:04pm</span></div>' +
+      '<div class="picks">' + PICKS[lighter ? 'lighter' : 'usual'].map(cardHTML).join('') + '</div>' +
+      '<div class="chips"><span>Not quite?</span>' +
+      '<button type="button" data-chip="short">Something short</button>' +
+      '<button type="button" class="live' + (lighter ? ' on' : '') + '" data-chip="lighter" aria-pressed="' + lighter + '">' + (lighter ? '✓ ' : '') + 'Lighter tonight</button>' +
+      '<button type="button" data-chip="company">Watching with someone</button>' +
+      '<span class="hint" aria-live="polite"></span></div></section>';
+  }
+  var NAV = '<div class="tv-nav"><span class="logo">reel</span><span class="here">Home</span><span>Shows</span><span>Movies</span><span>My List</span></div>';
+  var BILL = '<div class="bill"><span class="k">New episodes</span><span class="t">Harbor Lights</span><span class="m">Drama · 8 episodes</span></div>';
+  var BELOW = '<div class="tv-row dim below"><h4>Because you watched The Long Dark</h4>' + tiles(ROW1, -1) + '</div>';
+
+  document.getElementById('tv1').innerHTML = NAV + BILL +
+    '<div class="tv-row"><h4>Because you watched The Long Dark</h4>' + tiles(ROW1, 2, 'hop') + '</div>' +
+    '<div class="tv-row"><h4>Trending tonight</h4>' + tiles(ROW2, -1) + '</div>' +
+    '<div class="signals" id="sig"><b>Behind the scenes, not shown to the viewer</b>Browsing for <span id="s-time">2m 14s</span> · <span id="s-titles">31</span> titles passed · <span id="s-hovers">6</span> hovers · 0 plays' +
+    '<span class="met">→ looks stuck, so show tonight\'s three</span></div>';
+  document.getElementById('tv2').innerHTML = NAV + threeHTML(false) + BELOW;
+  document.getElementById('tv3').innerHTML = NAV + threeHTML(true) + BELOW;
+
+  function restart(el, cls) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
+
+  function setChip(screen, on) {
+    var c = screen.querySelector('[data-chip="lighter"]');
+    c.classList.toggle('on', on);
+    c.setAttribute('aria-pressed', String(on));
+    c.textContent = (on ? '✓ ' : '') + 'Lighter tonight';
+    screen.setAttribute('data-lighter', on ? '1' : '0');
+  }
+  /* Flip only the cards whose pick changes; the comfort pick stays put */
+  function swapPicks(screen, on, animate) {
+    var set = PICKS[on ? 'lighter' : 'usual'];
+    setChip(screen, on);
+    screen.querySelectorAll('.pickc').forEach(function (card, i) {
+      if (card.getAttribute('data-title') === set[i].title) return;
+      var tmp = document.createElement('div');
+      tmp.innerHTML = cardHTML(set[i]);
+      var next = tmp.firstChild;
+      if (!animate || reduce) { card.replaceWith(next); return; }
+      setTimeout(function () {
+        card.classList.add('flip-out');
+        setTimeout(function () {
+          next.classList.add('flip-in');
+          card.replaceWith(next);
+          next.addEventListener('animationend', function () { next.classList.remove('flip-in'); }, { once: true });
+        }, 220);
+      }, i * 130);
+    });
+  }
+
+  /* Frame 2: a scribbled box around the new row */
+  function drawMark(screen, animate) {
+    if (!window.rough || !screen) return;
+    var three = screen.querySelector('.three');
+    var svg = three.querySelector('svg.mark');
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var w = three.offsetWidth + 12, h = three.offsetHeight + 12;
+    if (w <= 12 || h <= 12) return;
+    svg.setAttribute('width', w); svg.setAttribute('height', h);
+    var accent = getComputedStyle(document.documentElement).getPropertyValue('--tv-accent').trim() || '#F2A541';
+    var g = rough.svg(svg).rectangle(3, 3, w - 6, h - 6, { stroke: accent, strokeWidth: 2, roughness: 1.8, bowing: 2.2, seed: 5 });
+    svg.appendChild(g);
+    if (animate && !reduce) {
+      g.querySelectorAll('path').forEach(function (p) {
+        var L = p.getTotalLength();
+        p.style.strokeDasharray = L; p.style.strokeDashoffset = L;
+        p.getBoundingClientRect();
+        p.style.transition = 'stroke-dashoffset 900ms ease';
+        p.style.strokeDashoffset = '0';
+      });
+    }
+  }
+
+  /* Frame 1: focus hops between titles while the counters climb */
+  var hopTimer, countRaf;
+  function play1() {
+    if (reduce) return;
+    var sig = document.getElementById('sig');
+    var hop = document.querySelectorAll('#hop .tile');
+    clearInterval(hopTimer); cancelAnimationFrame(countRaf);
+    sig.classList.add('counting');
+    var seq = [0, 1, 2, 3, 4, 5, 4, 3, 2, 1, 2, 3, 2], k = 0;
+    hopTimer = setInterval(function () {
+      hop.forEach(function (tl, i) { tl.classList.toggle('focus', i === seq[k]); });
+      k++;
+      if (k >= seq.length) clearInterval(hopTimer);
+    }, 185);
+    var start = null, D = 2400;
+    function step(ts) {
+      if (start === null) start = ts;
+      var p = Math.min(1, (ts - start) / D), e = 1 - Math.pow(1 - p, 2);
+      var secs = Math.round(134 * e);
+      document.getElementById('s-time').textContent = Math.floor(secs / 60) + 'm ' + (secs % 60) + 's';
+      document.getElementById('s-titles').textContent = Math.round(31 * e);
+      document.getElementById('s-hovers').textContent = Math.round(6 * e);
+      if (p < 1) { countRaf = requestAnimationFrame(step); return; }
+      sig.classList.remove('counting');
+      restart(sig, 'flash');
+      hop.forEach(function (tl, i) { tl.classList.toggle('focus', i === 2); });
+    }
+    countRaf = requestAnimationFrame(step);
+  }
+  /* Frame 2: the row arrives and pushes the old row down */
+  function play2() {
+    if (reduce) return;
+    var s = document.getElementById('tv2');
+    swapPicks(s, false, false);
+    restart(s.querySelector('.three'), 'arrive');
+    restart(s.querySelector('.below'), 'arrive');
+    var svg = s.querySelector('svg.mark');
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    setTimeout(function () { drawMark(s, true); }, 550);
+  }
+  /* Frame 3: a tap on the chip, then the picks flip */
+  var tapTimer;
+  function play3() {
+    if (reduce) return;
+    var s = document.getElementById('tv3');
+    clearTimeout(tapTimer);
+    swapPicks(s, false, false);
+    tapTimer = setTimeout(function () {
+      restart(s.querySelector('[data-chip="lighter"]'), 'tap');
+      tapTimer = setTimeout(function () { swapPicks(s, true, true); }, 320);
+    }, 750);
+  }
+  var PLAY = { 1: play1, 2: play2, 3: play3 };
+
+  document.getElementById('board').addEventListener('click', function (e) {
+    var r = e.target.closest('[data-replay]');
+    if (r) { PLAY[+r.getAttribute('data-replay')](); return; }
+    var c = e.target.closest('button[data-chip]');
+    if (!c) return;
+    var screen = c.closest('.tv-screen');
+    if (c.getAttribute('data-chip') === 'lighter') {
+      swapPicks(screen, screen.getAttribute('data-lighter') !== '1', true);
+      return;
+    }
+    screen.querySelector('.hint').textContent = 'Only "Lighter tonight" works in this demo. The others would work the same way.';
+  });
+
+  /* Each frame plays once when it scrolls into view */
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        var f = en.target;
+        f.classList.add('reached');
+        PLAY[+f.getAttribute('data-frame')]();
+        io.unobserve(f);
+      });
+    }, { rootMargin: '0px 0px -40% 0px', threshold: 0 });
+    document.querySelectorAll('.frame').forEach(function (f) { io.observe(f); });
+  } else {
+    document.querySelectorAll('.frame').forEach(function (f) { f.classList.add('reached'); });
+  }
+
+  /* The line through the storyboard: dotted at rest, traced in pen as you scroll */
+  var spineLen = 0, spineY0 = 0, spineY1 = 0;
+  function drawSpine() {
+    var board = document.getElementById('board'), spine = document.getElementById('spine');
+    var stops = board.querySelectorAll('.stop');
+    if (!stops.length) return;
+    var br = board.getBoundingClientRect();
+    var ys = Array.prototype.map.call(stops, function (s) { var r = s.getBoundingClientRect(); return r.top - br.top + r.height / 2; });
+    var r0 = stops[0].getBoundingClientRect();
+    var x0 = r0.left - br.left + r0.width / 2;
+    spineY0 = ys[0]; spineY1 = ys[ys.length - 1];
+    var d = 'M ' + x0.toFixed(1) + ' ' + spineY0.toFixed(1);
+    for (var y = spineY0 + 18; y < spineY1; y += 18) {
+      var x = x0 + Math.sin(y / 47) * 3.2 + Math.sin(y / 13) * 1.1;
+      d += ' L ' + x.toFixed(1) + ' ' + y.toFixed(1);
+    }
+    d += ' L ' + x0.toFixed(1) + ' ' + spineY1.toFixed(1);
+    spine.setAttribute('height', board.offsetHeight);
+    spine.setAttribute('viewBox', '0 0 ' + spine.getBoundingClientRect().width + ' ' + board.offsetHeight);
+    var base = spine.querySelector('.base'), ink = spine.querySelector('.ink');
+    base.setAttribute('d', d); ink.setAttribute('d', d);
+    spineLen = ink.getTotalLength();
+    ink.style.strokeDasharray = spineLen;
+    updateSpine();
+  }
+  function updateSpine() {
+    if (!spineLen) return;
+    var br = document.getElementById('board').getBoundingClientRect();
+    var p = (window.innerHeight * 0.6 - (br.top + spineY0)) / (spineY1 - spineY0);
+    p = reduce ? 1 : Math.max(0, Math.min(1, p));
+    document.querySelector('#spine .ink').style.strokeDashoffset = spineLen * (1 - p);
+  }
+  var ticking = false;
+  window.addEventListener('scroll', function () {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () { updateSpine(); ticking = false; });
+  }, { passive: true });
+
+  /* ---------- Draw once fonts are in, and on resize or theme change ---------- */
+  sketch(); drawSpine();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { sketch(); drawSpine(); });
+  window.addEventListener('load', function () { sketch(); drawSpine(); });
+  window.addEventListener('resize', redraw);
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  if (mq.addEventListener) mq.addEventListener('change', redraw);
+  new MutationObserver(redraw).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+})();
+</script>
+
+</body>
+</html>
