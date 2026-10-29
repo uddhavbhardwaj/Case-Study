@@ -14,7 +14,7 @@ html, body { margin: 0; }
 *, *::before, *::after { box-sizing: border-box; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
-/* Layout: a PM's notebook page. Graph-paper ground, one reading column, handwritten margin notes in pen beside it (stacked under on phones). The prototype is a storyboard of dark TV screens joined by a hand-drawn line. */
+/* Layout: a PM's notebook page structured as a case study. Graph-paper ground, one reading column, a few handwritten margin notes in pen (stacked under on phones). The prototype is a storyboard of dark TV screens joined by a hand-drawn line. */
 :root {
   --paper: #F3F5F9;
   --grid: rgba(43, 87, 201, 0.07);
@@ -88,6 +88,7 @@ body {
 .prose { max-width: 66ch; display: flex; flex-direction: column; gap: 18px; }
 .prose p { margin: 0; }
 .prose ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 10px; }
+.stack { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
 
 a { color: var(--pen); text-underline-offset: 3px; }
 a:focus-visible, button:focus-visible { outline: 2px solid var(--pen); outline-offset: 3px; border-radius: 4px; }
@@ -132,6 +133,12 @@ h2 {
   display: inline-block;
   padding-bottom: 10px;
 }
+h3 {
+  font-family: var(--f-body);
+  font-weight: 600;
+  font-size: 1.0625rem;
+  margin: 0;
+}
 .hl {
   background: linear-gradient(100deg, transparent 0.4%, var(--marker) 2.5%, var(--marker) 96%, transparent 99%);
   padding: 0.05em 0.25em;
@@ -140,6 +147,8 @@ h2 {
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
 }
+.fine { font-size: 0.9375rem; color: var(--ink-soft); margin: 0; max-width: 66ch; }
+.lead { margin: 0; max-width: 66ch; }
 
 /* Sketched boxes: a plain border until the sketch library draws, then a hand-drawn outline */
 [data-sketch] { position: relative; }
@@ -152,12 +161,16 @@ svg.sk.pen { color: var(--pen); }
 /* Hero */
 .hero { display: flex; flex-direction: column; gap: 36px; }
 .tldr { background: var(--card); padding: 26px 28px; display: flex; flex-direction: column; gap: 18px; }
-.tldr dl { margin: 0; display: flex; flex-direction: column; gap: 16px; }
+.tldr dl { margin: 0; display: flex; flex-direction: column; gap: 14px; }
 .tldr .item { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 16px; align-items: baseline; }
 .tldr dt { font-family: var(--f-mono); font-size: var(--step--1); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
 .tldr dd { margin: 0; }
 .tldr .readtime { margin: 4px 0 0; padding-top: 16px; border-top: 1px dashed var(--rule); font-size: 0.9375rem; color: var(--ink-soft); }
 .byline { margin: 0; font-size: 0.9375rem; color: var(--ink-soft); }
+.toc { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0; padding: 0; list-style: none; font-size: 0.9375rem; }
+.toc a { text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+.toc span { font-family: var(--f-mono); font-size: var(--step--1); color: var(--ink-soft); margin-right: 6px; }
 
 /* Margin notes in pen */
 .note {
@@ -176,8 +189,28 @@ svg.sk.pen { color: var(--pen); }
 .note.down-2 { padding-top: 120px; }
 .note.down-3 { padding-top: 150px; }
 
-/* Arrow pairs: research to couch, problem to fix */
-.pairs { display: flex; flex-direction: column; gap: 14px; margin-top: 8px; }
+/* Stat strip */
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.stat { background: var(--card); padding: 16px 16px 14px; display: flex; flex-direction: column; gap: 4px; }
+.stat b { font-family: var(--f-hand); font-weight: 400; font-size: 2.3rem; line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; }
+.stat span { font-size: 0.875rem; line-height: 1.4; color: var(--ink-soft); }
+
+/* Problem statement */
+.statement {
+  margin: 0;
+  padding: 20px 24px;
+  background: var(--card);
+  font-size: 1.125rem;
+  line-height: 1.55;
+  max-width: 70ch;
+}
+.cards3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.seg { background: var(--card); padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; }
+.seg h3 { font-family: var(--f-hand); font-weight: 400; font-size: 1.35rem; line-height: 1.2; }
+.seg p { margin: 0; font-size: 0.9375rem; }
+
+/* Arrow pairs: research to couch, risk to mitigation */
+.pairs { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
 .pairs .head, .pairs .pair {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 72px minmax(0, 1fr);
@@ -195,7 +228,7 @@ svg.sk.pen { color: var(--pen); }
 .risks .fix { align-self: center; }
 
 /* Timeline of what Netflix has tried */
-.timeline { list-style: none; margin: 4px 0 0; padding: 0 0 0 26px; border-left: 2px dashed var(--rule); display: flex; flex-direction: column; gap: 22px; }
+.timeline { list-style: none; margin: 0; padding: 0 0 0 26px; border-left: 2px dashed var(--rule); display: flex; flex-direction: column; gap: 18px; }
 .timeline li { position: relative; }
 .timeline li::before {
   content: ""; position: absolute; left: -34px; top: 0.45em;
@@ -205,22 +238,38 @@ svg.sk.pen { color: var(--pen); }
 .timeline .when { font-family: var(--f-mono); font-size: var(--step--1); letter-spacing: 0.06em; color: var(--ink-soft); display: block; }
 .timeline .what { font-weight: 600; }
 
-/* Two options */
-.options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; margin-top: 4px; }
-.option { background: var(--card); padding: 22px 24px; display: flex; flex-direction: column; gap: 12px; }
-.option h3 { margin: 0; font-family: var(--f-hand); font-weight: 400; font-size: 1.6rem; line-height: 1.2; }
-.option p { margin: 0; }
-.option .k { font-family: var(--f-mono); font-size: var(--step--1); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); display: block; margin-bottom: 2px; }
-.option .pick { font-family: var(--f-hand); color: var(--pen); font-size: 1.25rem; margin: 0 0 -4px; }
-.option .spacer { font-family: var(--f-hand); font-size: 1.25rem; margin: 0 0 -4px; visibility: hidden; }
+/* Goals, non-goals, metrics */
+.twocol { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.listbox { background: var(--card); padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; }
+.listbox ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 8px; font-size: 0.9875rem; }
+.metrics { background: var(--card); padding: 18px 20px; }
+.metrics dl { margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.metrics .item { display: grid; grid-template-columns: 8.5rem minmax(0, 1fr); gap: 16px; align-items: baseline; }
+.metrics dt { font-family: var(--f-mono); font-size: var(--step--1); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+.metrics dd { margin: 0; font-size: 0.9875rem; }
 
-/* Phases */
-.phases { display: flex; flex-direction: column; gap: 22px; margin-top: 4px; }
-.phase { background: var(--card); padding: 22px 24px; display: flex; flex-direction: column; gap: 10px; }
-.phase h3 { margin: 0; font-family: var(--f-hand); font-weight: 400; font-size: 1.55rem; line-height: 1.2; }
-.phase p { margin: 0; }
-.phase ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px; }
-.phase .gate { padding-top: 10px; border-top: 1px dashed var(--rule); }
+/* Sizing */
+.formula {
+  margin: 0;
+  padding: 14px 18px;
+  background: var(--card);
+  font-family: var(--f-mono);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  max-width: 70ch;
+}
+
+/* Tables */
+.tablewrap { overflow-x: auto; border: 1.5px solid var(--ink); border-radius: 8px; background: var(--card); }
+table { border-collapse: collapse; width: 100%; font-size: 0.9375rem; line-height: 1.45; }
+th, td { text-align: left; vertical-align: top; padding: 12px 14px; border-bottom: 1px solid var(--rule); }
+tr:last-child th, tr:last-child td { border-bottom: none; }
+thead th { font-family: var(--f-mono); font-size: var(--step--1); font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); background: var(--paper); }
+tbody th { font-weight: 600; width: 22%; }
+table.cmp { min-width: 680px; }
+table.cmp .rec { background: var(--marker); }
+thead th.rec { color: var(--ink); }
+table.inputs { min-width: 420px; }
 
 /* Storyboard: three moments in one evening, joined by a hand-drawn line */
 .board-intro { margin: 0 0 32px; max-width: 66ch; }
@@ -373,7 +422,16 @@ svg.mark { position: absolute; left: -6px; top: -6px; pointer-events: none; over
   .stop { transition: none; }
 }
 
+/* Validation plan */
+.phases { display: flex; flex-direction: column; gap: 18px; }
+.phase { background: var(--card); padding: 20px 22px; display: flex; flex-direction: column; gap: 10px; }
+.phase h3 { font-family: var(--f-hand); font-weight: 400; font-size: 1.5rem; line-height: 1.2; }
+.phase p { margin: 0; }
+.phase ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px; }
+.phase .gate { padding-top: 10px; border-top: 1px dashed var(--rule); }
+
 /* Closing */
+.questions { margin: 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: 10px; }
 .about { background: var(--card); padding: 22px 24px; display: flex; flex-direction: column; gap: 10px; }
 .about p { margin: 0; }
 .placeholder { font-family: var(--f-mono); font-size: 0.875rem; background: var(--marker); padding: 1px 6px; border-radius: 4px; }
@@ -381,7 +439,7 @@ svg.mark { position: absolute; left: -6px; top: -6px; pointer-events: none; over
 /* Sources, grouped by what they support */
 .src-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px 44px; }
 .src-group { min-width: 0; display: flex; flex-direction: column; gap: 12px; }
-.src-group h3 { margin: 0; font-family: var(--f-hand); font-weight: 400; font-size: 1.45rem; color: var(--pen); }
+.src-group h3 { font-family: var(--f-hand); font-weight: 400; font-size: 1.45rem; color: var(--pen); }
 .src-group ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
 .src-group li { padding-left: 14px; border-left: 2px solid var(--rule); }
 .src-group a { overflow-wrap: anywhere; }
@@ -393,8 +451,8 @@ svg.mark { position: absolute; left: -6px; top: -6px; pointer-events: none; over
   .note.down-1, .note.down-2, .note.down-3 { padding-top: 0; flex-direction: row; align-items: center; gap: 10px; }
   .note svg.arrow { transform: rotate(-90deg); flex-shrink: 0; }
   .page { gap: 72px; padding-block: 36px 64px; }
-  .options { grid-template-columns: minmax(0, 1fr); }
-  .option .spacer { display: none; }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cards3 { grid-template-columns: minmax(0, 1fr); }
   .src-groups { grid-template-columns: minmax(0, 1fr); }
   .spine { width: 32px; }
   .frame {
@@ -407,7 +465,8 @@ svg.mark { position: absolute; left: -6px; top: -6px; pointer-events: none; over
 }
 @media (max-width: 560px) {
   .tldr { padding: 20px 18px; }
-  .tldr .item { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .tldr .item, .metrics .item { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .twocol { grid-template-columns: minmax(0, 1fr); }
   .pairs .head { display: none; }
   .pairs .pair { grid-template-columns: minmax(0, 1fr); gap: 6px; }
   .pairs svg.arrow { transform: rotate(90deg); height: 40px; }
@@ -431,70 +490,123 @@ svg.mark { position: absolute; left: -6px; top: -6px; pointer-events: none; over
       <section class="tldr" data-sketch="box" aria-label="Summary">
         <dl>
           <div class="item">
-            <dt>What bugged me</dt>
-            <dd>People in the US say they spend about 12 minutes looking for something to watch, and about 1 in 5 streaming viewers say they'd give up on watching if the search doesn't work out. If you've ever closed the app and opened Instagram instead, you're in that group.</dd>
+            <dt>Problem</dt>
+            <dd>US viewers say they spend about 12 minutes finding something to watch. 1 in 5 say they'd give up if the search fails.</dd>
           </div>
           <div class="item">
-            <dt>What I learned</dt>
-            <dd>Netflix already adjusts for things like time of day and the device you're on. What it can't easily know is what you need tonight: that you're wiped out, only have half an hour, or have someone on the couch with you. There's no quick way to tell it.</dd>
+            <dt>Insight</dt>
+            <dd>It's less about too many options and more about not knowing what you want tonight. Netflix adjusts for time and device, but has no way to hear that tonight is different.</dd>
           </div>
           <div class="item">
-            <dt>What I'd do</dt>
-            <dd><span class="hl">When someone has been clicking around for a while without picking anything, add one row with three picks, each with a short reason, plus an easy way to say what you're after tonight.</span> Then test whether it helps people find something they're glad they picked.</dd>
+            <dt>Recommendation</dt>
+            <dd><span class="hl">When someone browses for a while without picking, add one row of three picks with a reason each, plus chips to say what you want tonight.</span></dd>
+          </div>
+          <div class="item">
+            <dt>Success metric</dt>
+            <dd>Share of stuck sessions that end in 10+ minutes of watching, and whether people say it was a good pick.</dd>
+          </div>
+          <div class="item">
+            <dt>First step</dt>
+            <dd>Confirm the problem with existing data and 20–30 interviews before building anything.</dd>
           </div>
         </dl>
-        <p class="readtime">Only have two minutes? Read this box and <a href="#prototype">scroll through the prototype</a>.</p>
+        <p class="readtime">Two minutes? Read this box and <a href="#solution">scroll through the prototype</a>.</p>
       </section>
 
       <aside class="note down-3" aria-label="Margin note">
         <svg class="arrow" data-arrow="left" width="56" height="28" aria-hidden="true"></svg>
-        <p>this row is the whole idea. you can watch it play out further down</p>
+        <p>the whole case in five lines</p>
       </aside>
     </div>
+
+    <ol class="toc" aria-label="Contents">
+      <li><a href="#context"><span>1</span>Context</a></li>
+      <li><a href="#problem"><span>2</span>Problem</a></li>
+      <li><a href="#insight"><span>3</span>Insight</a></li>
+      <li><a href="#goals"><span>4</span>Goals and metrics</a></li>
+      <li><a href="#sizing"><span>5</span>Sizing</a></li>
+      <li><a href="#options"><span>6</span>Options</a></li>
+      <li><a href="#solution"><span>7</span>Solution</a></li>
+      <li><a href="#risks"><span>8</span>Risks</a></li>
+      <li><a href="#plan"><span>9</span>Validation plan</a></li>
+      <li><a href="#questions"><span>10</span>Open questions</a></li>
+      <li><a href="#sources"><span>A</span>Sources</a></li>
+    </ol>
 
     <p class="byline">Uddhav Bhardwaj · MBA candidate, Emory Goizueta Business School · <a href="#about">About me</a></p>
   </header>
 
-  <section class="col" aria-labelledby="scroll-h">
-    <p class="eyebrow">The problem</p>
-    <h2 id="scroll-h" data-sketch="underline">The 9pm scroll</h2>
+  <section class="col" id="context" aria-labelledby="context-h">
+    <p class="eyebrow">1 · Context</p>
+    <h2 id="context-h" data-sketch="underline">Finding something to watch is getting harder</h2>
     <div class="row">
-      <div class="prose">
-        <p>You probably know the routine. It's a weeknight, you open Netflix, scroll past thirty-something titles, open two of them, back out of both, and ten minutes later you're on your phone.</p>
-        <p>This isn't a niche problem. In Gracenote's 2025 State of Play survey of 3,000 streaming viewers in six countries, people in the US said they spend about 12 minutes searching for something to watch, up from 10.5 minutes in 2023. About one in five said they'd abandon the session if their search didn't turn anything up, and 45% called the whole streaming experience overwhelming.</p>
-        <p>It may also affect whether people stay. In the same survey, 49% said they'd be willing to cancel a service because it's hard to find something to watch.</p>
-        <p>These are things people say in a survey, across all streaming services. They aren't Netflix's numbers, and saying you'd cancel isn't the same as cancelling. Still, the direction is hard to ignore.</p>
+      <div class="stack">
+        <p class="lead">Gracenote's 2025 State of Play surveyed 3,000 streaming viewers across six countries:</p>
+        <div class="stats">
+          <div class="stat" data-sketch="box"><b>12 min</b><span>spent searching for something to watch (US), up from 10.5 in 2023</span></div>
+          <div class="stat" data-sketch="box"><b>19%</b><span>would abandon the session if their search failed</span></div>
+          <div class="stat" data-sketch="box"><b>45%</b><span>find the streaming experience overwhelming</span></div>
+          <div class="stat" data-sketch="box"><b>49%</b><span>would consider cancelling a service over it</span></div>
+        </div>
+        <p class="fine">Self-reported, and across all streaming services, not Netflix alone. Saying you'd cancel isn't cancelling.</p>
+
+        <h3 style="margin-top: 12px">What Netflix has tried</h3>
+        <ol class="timeline">
+          <li><span class="when">2021</span><span class="what">Fast Laughs.</span> A vertical feed of comedy clips on mobile.</li>
+          <li><span class="when">2021</span><span class="what">Play Something.</span> One button, Netflix picks for you.</li>
+          <li><span class="when">January 2023</span><span class="what">Play Something removed</span> for low usage.</li>
+          <li><span class="when">2026</span><span class="what">Clips.</span> A personalized vertical feed of previews in the mobile app.</li>
+        </ol>
+        <p class="lead"><strong>Takeaway:</strong> people didn't want to hand over the decision, and the newest discovery tool lives on phones.</p>
       </div>
-      <aside class="note down-1" aria-label="Margin note">
+      <aside class="note down-2" aria-label="Margin note">
         <svg class="arrow" data-arrow="left" width="56" height="28" aria-hidden="true"></svg>
-        <p>the one that stuck with me: nearly half would think about cancelling over this.</p>
+        <p>nearly half would think about cancelling over this. that's the business case.</p>
       </aside>
     </div>
   </section>
 
-  <section class="col" id="nuance" aria-labelledby="nuance-h">
-    <p class="eyebrow">Where I was wrong</p>
-    <h2 id="nuance-h" data-sketch="underline">I assumed it was too many choices</h2>
+  <section class="col" id="problem" aria-labelledby="problem-h">
+    <p class="eyebrow">2 · Problem</p>
+    <h2 id="problem-h" data-sketch="underline">Problem statement</h2>
+    <div class="stack">
+      <p class="statement" data-sketch="box">Viewers who open Netflix without a clear idea of what they want often browse, don't commit, and leave. The homepage predicts their usual taste well, but gives them no quick way to say <span class="hl">tonight is different.</span></p>
 
+      <h3 style="margin-top: 8px">Who I think gets stuck</h3>
+      <div class="cards3">
+        <div class="seg" data-sketch="box"><h3>Tired, end of day</h3><p>Wants something easy. Their usual picks feel like too much effort tonight.</p></div>
+        <div class="seg" data-sketch="box"><h3>Watching with someone</h3><p>Two tastes, one remote. Neither person's usual picks fit both.</p></div>
+        <div class="seg" data-sketch="box"><h3>Short on time</h3><p>Has 30 minutes. A 55-minute episode or a two-hour film is out.</p></div>
+      </div>
+      <p class="fine">These are hypotheses, not validated segments. Phase 0 tests them.</p>
+      <p class="fine"><strong>Scope:</strong> the TV app. Netflix said in 2018 that about 70% of streams were on TVs. I couldn't find a recent public figure, so TV is my choice of focus, not a proven fact.</p>
+    </div>
+  </section>
+
+  <section class="col" id="insight" aria-labelledby="insight-h">
+    <p class="eyebrow">3 · Insight</p>
+    <h2 id="insight-h" data-sketch="underline">It isn't too many choices</h2>
     <div class="row">
       <div class="prose">
-        <p>My starting point was the explanation everyone reaches for: Netflix has so much stuff that people freeze. So I went looking for the research behind it, expecting it to be solid.</p>
-        <p>It wasn't, at least not in the simple version. When researchers pooled 50 experiments in 2010, the average choice-overload effect came out close to zero. Some studies found a strong effect and plenty found none.</p>
-        <p>Research on recommendations tells a similar story. A 2010 study found that showing people a bigger set of good recommendations didn't make them more satisfied with what they picked. And a 2025 field experiment with 1.6 million online shoppers found that buying went up and then down as more recommended products were shown. Up to 64% of that drop came from people not clicking on anything at all.</p>
-        <p>Neither study tells you the right number of picks for Netflix, and the second one is about shopping, not TV. What they did change is the question I was asking. I stopped asking how many options is too many and started asking what makes someone feel sure enough to start.</p>
-        <p>A 2015 review helped with that, because it looked at when overload actually shows up: when the options are hard to compare, when the decision feels like it matters, when people aren't sure what they want, and when they need to pick right now instead of just looking around. Read that list again and it sounds a lot like a weeknight on the couch:</p>
+        <p>I assumed people freeze because there's too much to choose from. The research doesn't support the simple version:</p>
+        <ul>
+          <li>A 2010 meta-analysis of 50 experiments found the average choice-overload effect was close to zero.</li>
+          <li>In recommender studies, bigger sets of good picks didn't raise satisfaction (2010). In a 1.6-million-shopper field test, up to 64% of the drop from showing more products came from people not clicking anything at all (2025).</li>
+          <li>A 2015 review found overload shows up under specific conditions: unclear preferences, a decision that feels like it matters, and needing to choose now.</li>
+        </ul>
+        <p>That last list sounds like a weeknight on the couch:</p>
 
         <div class="pairs" role="list">
           <div class="head" aria-hidden="true"><span>What the research says</span><span></span><span>What it sounds like at 9pm</span></div>
           <div class="pair" role="listitem">
             <div class="from" data-sketch="box">People aren't sure what they want</div>
             <svg class="arrow" data-arrow="right" width="64" height="24" aria-hidden="true"></svg>
-            <div class="says">"I honestly don't know what I feel like watching."</div>
+            <div class="says">"I don't know what I feel like watching."</div>
           </div>
           <div class="pair" role="listitem">
             <div class="from" data-sketch="box">They need to pick right now</div>
             <svg class="arrow" data-arrow="right" width="64" height="24" aria-hidden="true"></svg>
-            <div class="says">"I've got an hour before bed. Something, please."</div>
+            <div class="says">"I've got an hour before bed."</div>
           </div>
           <div class="pair" role="listitem">
             <div class="from" data-sketch="box">The decision feels like it matters</div>
@@ -502,81 +614,108 @@ svg.mark { position: absolute; left: -6px; top: -6px; pointer-events: none; over
             <div class="says">"What if I start this and it's bad?"</div>
           </div>
         </div>
-      </div>
 
+        <p>Netflix already uses time of day, device, watch time and whether you finish things. What it can't see is how you feel tonight. Mood research shows people pick entertainment partly to change their mood: in one classic study, stressed people chose relaxing programs and bored people chose exciting ones.</p>
+        <p><span class="hl">Hypothesis: some stuck sessions happen when what someone needs tonight doesn't match what the app has guessed.</span> A quick way to say so should help them commit.</p>
+      </div>
+      <aside class="note down-1" aria-label="Margin note">
+        <svg class="arrow" data-arrow="left" width="56" height="28" aria-hidden="true"></svg>
+        <p>this is where I changed my mind. it's also the riskiest assumption here.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="col" id="goals" aria-labelledby="goals-h">
+    <p class="eyebrow">4 · Goals and metrics</p>
+    <h2 id="goals-h" data-sketch="underline">What success looks like</h2>
+    <div class="stack">
+      <div class="twocol">
+        <div class="listbox" data-sketch="box">
+          <p class="label">Goals</p>
+          <ul>
+            <li>Help stuck viewers start something they're glad they picked.</li>
+            <li>Work on TV, inside the existing homepage.</li>
+            <li>Keep new releases discoverable.</li>
+          </ul>
+        </div>
+        <div class="listbox" data-sketch="box">
+          <p class="label">Non-goals</p>
+          <ul>
+            <li>Replacing the homepage or the recommendation system.</li>
+            <li>New content formats, like clips.</li>
+            <li>Changing anything for people who enjoy browsing.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="metrics" data-sketch="box">
+        <dl>
+          <div class="item"><dt>Primary</dt><dd>Share of stuck sessions that end in 10+ minutes of watching.</dd></div>
+          <div class="item"><dt>Quality</dt><dd>Share who say it was a good pick, from a one-question prompt after watching.</dd></div>
+          <div class="item"><dt>Guardrails</dt><dd>Plays of new releases, rewatch share, engagement of viewers who weren't stuck, and how often the row is dismissed.</dd></div>
+          <div class="item"><dt>Long term</dt><dd>30-day retention of people who often get stuck. Needs a long-running holdout group.</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="col" id="sizing" aria-labelledby="sizing-h">
+    <p class="eyebrow">5 · Sizing</p>
+    <h2 id="sizing-h" data-sketch="underline">How big could this be?</h2>
+    <div class="row">
+      <div class="stack">
+        <p class="lead">Netflix doesn't publish session data, so this is the shape of the estimate, not an answer.</p>
+        <p class="formula" data-sketch="box">sessions recovered = stuck sessions × share the row turns into a real watch</p>
+        <div class="tablewrap">
+          <table class="inputs">
+            <thead><tr><th scope="col">Input</th><th scope="col">Where it comes from</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Daily TV sessions</th><td>Netflix internal data</td></tr>
+              <tr><th scope="row">Share that get stuck</th><td>Phase 0 data pull</td></tr>
+              <tr><th scope="row">Share the row recovers</th><td>Phase 1 A/B test</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="fine"><strong>Illustration with made-up inputs:</strong> if 10% of sessions get stuck and the row recovers a quarter of them, 2.5 of every 100 sessions that would have ended with nothing end in a real watch instead. Whether that moves retention needs a longer test.</p>
+      </div>
       <aside class="note down-2" aria-label="Margin note">
         <svg class="arrow" data-arrow="left" width="56" height="28" aria-hidden="true"></svg>
-        <p>this is where the project changed direction. I stopped thinking about showing people more and started thinking about <span class="hl">how to make them feel sure about one thing.</span></p>
+        <p>the numbers are placeholders. the structure is the point.</p>
       </aside>
     </div>
   </section>
 
-  <section class="col" aria-labelledby="tried-h">
-    <p class="eyebrow">What's been tried</p>
-    <h2 id="tried-h" data-sketch="underline">Netflix has been working on this for years</h2>
-    <div class="row">
-      <div class="prose">
-        <p>Before suggesting anything, I wanted to see what Netflix had already tried.</p>
-        <ol class="timeline">
-          <li><span class="when">2021</span><span class="what">Fast Laughs.</span> A vertical feed of comedy clips on mobile, pitched as a way to discover shows.</li>
-          <li><span class="when">2021</span><span class="what">Play Something.</span> One button, and Netflix picks something for you.</li>
-          <li><span class="when">January 2023</span><span class="what">Play Something is removed.</span> Not enough people used it.</li>
-          <li><span class="when">2026</span><span class="what">Clips.</span> A personalized vertical feed of previews in the redesigned mobile app.</li>
-        </ol>
-        <p>Two things stood out to me. Play Something suggests people don't want to hand the decision over completely, even when they're stuck. And Clips lives on phones. Netflix said back in 2018 that about 70% of its streams happened on TVs. I couldn't find a recent public number, so designing for the TV is my choice of focus rather than something I can prove is the bigger problem.</p>
+  <section class="col" id="options" aria-labelledby="options-h">
+    <p class="eyebrow">6 · Options</p>
+    <h2 id="options-h" data-sketch="underline">Options considered</h2>
+    <div class="stack">
+      <div class="tablewrap">
+        <table class="cmp">
+          <thead>
+            <tr>
+              <th scope="col"><span class="visually-hidden">Criteria</span></th>
+              <th scope="col">Bring back Play Something</th>
+              <th scope="col">Clip feed for stuck viewers</th>
+              <th scope="col" class="rec">Tonight's three (recommended)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">What it is</th><td>One button. Netflix picks and plays.</td><td>Send stuck viewers to vertical clips.</td><td class="rec">One row of three picks with reasons, plus chips.</td></tr>
+            <tr><th scope="row">Works on TV</th><td>Yes</td><td>Not today. Clips is mobile.</td><td class="rec">Yes</td></tr>
+            <tr><th scope="row">Viewer keeps choosing</th><td>No</td><td>Yes</td><td class="rec">Yes</td></tr>
+            <tr><th scope="row">Builds confidence</th><td>Partly</td><td>Partly. Previews help, but add more options.</td><td class="rec">Yes. Fewer options, each explained.</td></tr>
+            <tr><th scope="row">Build cost</th><td>Low. Built before.</td><td>Medium. Exists on mobile.</td><td class="rec">Medium</td></tr>
+            <tr><th scope="row">Main risk</th><td>Already removed for low usage.</td><td>Clips made to hook can oversell a show.</td><td class="rec">Depends on spotting stuck sessions well.</td></tr>
+          </tbody>
+        </table>
       </div>
-      <aside class="note down-3" aria-label="Margin note">
-        <svg class="arrow" data-arrow="left" width="56" height="28" aria-hidden="true"></svg>
-        <p>one went away, the other lives on phones. neither really helps someone stuck on the couch at 9pm.</p>
-      </aside>
+      <p class="lead"><strong>Recommendation: Tonight's three.</strong> It works where the problem mostly happens, and Play Something's removal suggests people still want to be the ones choosing.</p>
     </div>
   </section>
 
-  <section class="col" aria-labelledby="idea-h">
-    <p class="eyebrow">The idea</p>
-    <h2 id="idea-h" data-sketch="underline">Netflix knows my usual Tuesday. It doesn't know this one.</h2>
-    <div class="row">
-      <div class="prose">
-        <p>Netflix already pays attention to context. Its help center says recommendations take into account the time of day, the device you're on, how long you watch and whether you finish things, with recent viewing counting more than older viewing. Researchers have argued for this for years: what's worth recommending depends on circumstances like when you're watching and who's with you.</p>
-        <p>What Netflix can't see is how you feel tonight. Psychologists who study media choice have found that people pick entertainment partly to change their mood. In one classic experiment, stressed people chose more relaxing programs and bored people chose more exciting ones. So "I usually like thrillers" and "I want something easy tonight" can both be true.</p>
-        <p><span class="hl">My hypothesis: some stuck sessions happen when what you need right now doesn't match what the app has guessed.</span> If that's right, giving people a quick way to say so should help.</p>
-        <p>Nothing I found proves that stuck nights are unusual nights. It's the first thing I'd want to check.</p>
-      </div>
-      <aside class="note down-2" aria-label="Margin note">
-        <svg class="arrow" data-arrow="left" width="56" height="28" aria-hidden="true"></svg>
-        <p>if this one is wrong, most of the rest falls apart too</p>
-      </aside>
-    </div>
-  </section>
-
-  <section class="col" aria-labelledby="options-h">
-    <p class="eyebrow">Two options</p>
-    <h2 id="options-h" data-sketch="underline">Two ways I could have gone</h2>
-    <div class="options">
-      <div class="option" data-sketch="box">
-        <p class="spacer" aria-hidden="true">my pick</p>
-        <h3>A feed for stuck viewers</h3>
-        <p>Send people who seem stuck into a vertical feed of clips.</p>
-        <p><span class="k">Going for it</span>It's engaging, and Netflix has mostly built it already with Clips.</p>
-        <p><span class="k">Against it</span>It's on phones, it adds even more things to choose from, and clips designed to hook you can oversell a show.</p>
-      </div>
-      <div class="option" data-sketch="box" data-pen>
-        <p class="pick">my pick ↓</p>
-        <h3>Tonight's three</h3>
-        <p>When someone seems stuck, add one row with three picks, each with a reason, and an easy way to say what you want tonight.</p>
-        <p><span class="k">Going for it</span>It works on TV, it needs no new content, and it goes after the actual problem, which is not feeling sure.</p>
-        <p><span class="k">Against it</span>It depends on spotting stuck people correctly, and it can't end up burying new shows.</p>
-      </div>
-    </div>
-    <div class="prose" style="margin-top: 24px">
-      <p>I went with the second one, mostly because of the TV point, and because Play Something suggests people still want to be the ones choosing.</p>
-    </div>
-  </section>
-
-  <section class="col" id="prototype" aria-labelledby="proto-h">
-    <p class="eyebrow">The design</p>
+  <section class="col" id="solution" aria-labelledby="proto-h">
+    <p class="eyebrow">7 · Solution</p>
     <h2 id="proto-h" data-sketch="underline">One evening, three moments</h2>
-    <p class="board-intro">Here's how it would play out for one person on a Tuesday night. Scroll through it, or tap "Lighter tonight" in the screens to try it yourself. The shows and numbers are made up.</p>
+    <p class="board-intro">How it plays out for one viewer on a Tuesday night. Scroll through, or tap "Lighter tonight" in the screens. Shows and numbers are made up.</p>
 
     <div class="board" id="board">
       <svg class="spine" id="spine" aria-hidden="true"><path class="base"></path><path class="ink"></path></svg>
@@ -586,7 +725,7 @@ svg.mark { position: absolute; left: -6px; top: -6px; pointer-events: none; over
         <p class="frame-label"><span class="n">9:02pm</span>browsing, not picking</p>
         <div class="tv"><div class="tv-screen" id="tv1"></div></div>
         <div class="note">
-          <p>nothing changes on screen yet. behind the scenes, the app notices someone hopping between titles for over two minutes without picking, which is longer than they usually take.</p>
+          <p>nothing changes on screen. the app notices two-plus minutes of hopping between titles, longer than this person usually takes.</p>
           <button class="replay" type="button" data-replay="1">↻ replay</button>
         </div>
       </div>
@@ -596,7 +735,7 @@ svg.mark { position: absolute; left: -6px; top: -6px; pointer-events: none; over
         <p class="frame-label"><span class="n">9:04pm</span>the row shows up</p>
         <div class="tv"><div class="tv-screen" id="tv2" data-lighter="0"></div></div>
         <div class="note">
-          <p>one row slides in right where their focus already is. the rows they were browsing are still there, just underneath.</p>
+          <p>one row slides in where their focus already is. everything else stays put.</p>
           <button class="replay" type="button" data-replay="2">↻ replay</button>
         </div>
       </div>
@@ -606,130 +745,119 @@ svg.mark { position: absolute; left: -6px; top: -6px; pointer-events: none; over
         <p class="frame-label"><span class="n">9:05pm</span>one tap: lighter tonight</p>
         <div class="tv"><div class="tv-screen" id="tv3" data-lighter="1"></div></div>
         <div class="note">
-          <p>their taste stays the same, the picks just get lighter and shorter. the comfort pick doesn't move because it already fit.</p>
+          <p>same taste, lighter and shorter picks. the comfort pick stays because it already fit.</p>
           <button class="replay" type="button" data-replay="3">↻ replay</button>
         </div>
       </div>
     </div>
 
     <div class="prose" style="margin-top: 36px">
-      <p>Each of the three picks has a job:</p>
+      <h3>Design decisions</h3>
       <ul>
-        <li><strong>Safe bet.</strong> The strongest match for you. Netflix already uses whether people finish titles as a signal, so "people like you finished this" could be one part of how confident the pick is. Finishing something doesn't prove you loved it, though, so it shouldn't be the only part.</li>
-        <li><strong>New for you.</strong> A slot saved for new releases, so they don't get pushed out by older hits.</li>
-        <li><strong>Comfort.</strong> Something familiar, like the next episode of a show you're already in the middle of.</li>
+        <li><strong>Three slots, each with a job.</strong> Safe bet (strongest match), New for you (protects new releases), Comfort (something familiar).</li>
+        <li><strong>Completion is one input, not a quality score.</strong> Netflix already uses it as a signal, but finishing something doesn't prove you liked it.</li>
+        <li><strong>Chips ask what you want, not how you feel.</strong> "I'm tired" doesn't say whether someone wants comedy or something calm.</li>
+        <li><strong>Reasons get tested.</strong> Research shows a reason can make a pick more appealing without helping people choose better. Compare no reason, a tonight-based reason and a history-based one.</li>
+        <li><strong>Nothing else moves.</strong> On a remote, where you are on screen is everything.</li>
       </ul>
-      <p>The chips ask what you want ("lighter," "short"), not how you feel ("tired"). Mood research is as much about people changing their mood as matching it, so "I'm tired" doesn't tell you whether someone wants a comedy or something calm. Which kind of question people find easier to answer is something I'd test.</p>
-      <p>I'd also test the one-line reasons. Research on recommendation explanations found that a reason can make a pick more appealing without helping people choose better. So I'd compare no reason, a reason about tonight ("fits your 30 minutes") and a reason about history ("because you watched The Long Dark").</p>
     </div>
   </section>
 
-  <section class="col" aria-labelledby="risks-h">
-    <p class="eyebrow">What could go wrong</p>
-    <h2 id="risks-h" data-sketch="underline">Where I think this could break</h2>
+  <section class="col" id="risks" aria-labelledby="risks-h">
+    <p class="eyebrow">8 · Risks</p>
+    <h2 id="risks-h" data-sketch="underline">Risks and mitigations</h2>
     <div class="pairs risks" role="list">
-      <div class="head" aria-hidden="true"><span>The problem</span><span></span><span>What I'd do about it</span></div>
+      <div class="head" aria-hidden="true"><span>Risk</span><span></span><span>Mitigation</span></div>
       <div class="pair" role="listitem">
-        <div class="from" data-sketch="box"><strong>Why only stuck people?</strong>If three picks with reasons help, maybe everyone should get them.</div>
+        <div class="from" data-sketch="box"><strong>Why only stuck viewers?</strong>If the row helps, maybe everyone should get it.</div>
         <svg class="arrow" data-arrow="right" width="64" height="24" aria-hidden="true"></svg>
-        <div class="fix">I honestly don't know, so I'd test both.</div>
+        <div class="fix">Test both. I don't know the answer.</div>
       </div>
       <div class="pair" role="listitem">
-        <div class="from" data-sketch="box"><strong>Nobody taps the chips.</strong>Asking people to tap something is exactly what Play Something showed they avoid.</div>
+        <div class="from" data-sketch="box"><strong>Nobody taps the chips.</strong>Play Something showed people avoid explicit asks.</div>
         <svg class="arrow" data-arrow="right" width="64" height="24" aria-hidden="true"></svg>
-        <div class="fix">Let the picks adjust on their own first. The chips are a backup, and if nobody uses them, they go.</div>
+        <div class="fix">Picks adjust on their own first. Chips are a backup, cut if unused.</div>
       </div>
       <div class="pair" role="listitem">
-        <div class="from" data-sketch="box"><strong>The reasons sell instead of help.</strong>A good-sounding reason can make a bad pick look great.</div>
+        <div class="from" data-sketch="box"><strong>Reasons sell instead of help.</strong>A good-sounding reason can make a bad pick look great.</div>
         <svg class="arrow" data-arrow="right" width="64" height="24" aria-hidden="true"></svg>
-        <div class="fix">Judge the reasons by whether people were glad they picked the show, not by how many clicks they get.</div>
+        <div class="fix">Judge reasons by "good pick" answers, not clicks.</div>
       </div>
       <div class="pair" role="listitem">
-        <div class="from" data-sketch="box"><strong>Completion favors popular, short stuff.</strong>Recommenders already lean toward popular titles, and a sitcom episode will always get finished more often than a two-hour film.</div>
+        <div class="from" data-sketch="box"><strong>Completion favors popular, short titles.</strong>Recommenders already lean popular, and sitcoms get finished more than films.</div>
         <svg class="arrow" data-arrow="right" width="64" height="24" aria-hidden="true"></svg>
-        <div class="fix">Compare shows with shows and films with films, and keep one slot for new releases.</div>
+        <div class="fix">Compare within format. Reserve a slot for new releases.</div>
       </div>
       <div class="pair" role="listitem">
-        <div class="from" data-sketch="box"><strong>Spotting "stuck" is messy.</strong>A remote that hasn't moved in two minutes might mean a phone call, not a stuck person.</div>
+        <div class="from" data-sketch="box"><strong>"Stuck" is hard to detect.</strong>An idle remote might mean a phone call.</div>
         <svg class="arrow" data-arrow="right" width="64" height="24" aria-hidden="true"></svg>
-        <div class="fix">Only count active browsing, compare people to their own normal, and start strict.</div>
-      </div>
-      <div class="pair" role="listitem">
-        <div class="from" data-sketch="box"><strong>Moving things around on a TV is confusing.</strong>On a remote, where you are on the screen is everything.</div>
-        <svg class="arrow" data-arrow="right" width="64" height="24" aria-hidden="true"></svg>
-        <div class="fix">Add the row where the person already is, and leave the rest of the page alone.</div>
+        <div class="fix">Count only active browsing, compare to each person's normal, start strict.</div>
       </div>
     </div>
   </section>
 
-  <section class="col" aria-labelledby="plan-h">
-    <p class="eyebrow">How I'd test it</p>
-    <h2 id="plan-h" data-sketch="underline">What I'd actually do first</h2>
+  <section class="col" id="plan" aria-labelledby="plan-h">
+    <p class="eyebrow">9 · Validation plan</p>
+    <h2 id="plan-h" data-sketch="underline">Validation plan and roadmap</h2>
     <div class="row">
       <div class="phases">
         <div class="phase" data-sketch="box">
           <p class="label">Phase 0 · 2–3 weeks · no engineering</p>
-          <h3>Check that the problem is real</h3>
-          <p>Look at how often people browse for a couple of minutes without picking anything, and whether people who do that a lot are more likely to cancel. Then ask 20–30 people about the last time they had trouble choosing:</p>
+          <h3>Confirm the problem</h3>
           <ul>
-            <li>What happened?</li>
-            <li>How were you feeling, who were you with, and how much time did you have? Was that night typical for you?</li>
-            <li>What did you end up doing, and why?</li>
+            <li>Data: how often do sessions run 2+ minutes with no play? Do people who do this a lot cancel more?</li>
+            <li>Interviews (20–30): the last time choosing was hard. How were you feeling, who were you with, how much time did you have, and was that night typical? Then a night when choosing was easy, for comparison.</li>
           </ul>
-          <p>Also ask about a night when choosing was easy, so there's something to compare against.</p>
-          <p class="gate"><span class="hl">Only keep going if stuck sessions are common and the stories point to mismatched needs,</span> rather than something else, like nothing good in the catalog.</p>
+          <p class="gate"><span class="hl">Go only if stuck sessions are common and the stories point to mismatched needs,</span> not something else like a thin catalog.</p>
         </div>
         <div class="phase" data-sketch="box">
           <p class="label">Phase 1 · 4–5 weeks</p>
-          <h3>Ship just the row</h3>
-          <p>Split people three ways: no row, the row for everyone, and the row only when someone looks stuck. For each, measure three separate things:</p>
-          <ul>
-            <li>Did they engage with any of the three picks at all?</li>
-            <li>Did they start something and watch it for 10+ minutes?</li>
-            <li>When asked, did they say it was a good pick for them?</li>
-          </ul>
-          <p class="gate"><strong>Also watch:</strong> plays of new titles, how much of it is rewatching, and whether people who weren't stuck find it annoying.</p>
+          <h3>Ship the row only</h3>
+          <p>Three-way A/B test: no row, row for everyone, row for stuck viewers. Measure engagement with the row, 10+ minute plays and "good pick" answers separately, against the guardrails in section 4.</p>
         </div>
         <div class="phase" data-sketch="box">
           <p class="label">Phase 2</p>
-          <h3>Add the extras one at a time</h3>
-          <p>The completion signal, the chips, the reason wording and the automatic mood shift each get tested on their own. Anything that doesn't help gets cut.</p>
+          <h3>Add extras one at a time</h3>
+          <p>Completion signal, chips, reason wording, automatic mood shift. Each has to earn its place.</p>
         </div>
-        <p style="margin: 0; max-width: 66ch">Netflix's own product leaders have described judging changes through A/B tests that look at whether members keep watching and stick around. A few weeks of testing like this can show whether people pick better. Whether they stay longer would need a longer experiment.</p>
+        <p class="fine">Netflix evaluates changes through A/B tests focused on engagement and retention. A few weeks shows whether people pick better. Retention needs a longer holdout.</p>
       </div>
       <aside class="note down-1" aria-label="Margin note">
         <svg class="arrow" data-arrow="left" width="56" height="28" aria-hidden="true"></svg>
-        <p>phase 0 is the cheapest step. it might show this isn't worth building, which would still be a useful answer.</p>
+        <p>phase 0 might say don't build this. that's still a win.</p>
       </aside>
     </div>
   </section>
 
-  <section class="col" id="about" aria-labelledby="ask-h">
-    <p class="eyebrow">A question for you</p>
-    <h2 id="ask-h" data-sketch="underline">What did I get wrong?</h2>
-    <div class="row">
-      <div class="prose">
-        <p>I put this together from the outside, so I'm sure I missed things. I'd really like to hear where it falls apart, and especially whether the idea about unusual nights matches anything you've seen.</p>
-        <div class="about" data-sketch="box">
-          <p class="label">About me</p>
-          <p>I'm Uddhav, an MBA student at Emory's Goizueta Business School, graduating in January 2027. Before that I worked in digital banking at Ujjivan Small Finance Bank in India, did a technical PM internship at Voysn, and started Anvesa, a marketplace for adventure sports. I'm hoping to work in product after I graduate.</p>
-          <p>LinkedIn: <span class="placeholder">[add your LinkedIn link]</span></p>
-        </div>
-        <p>Thanks for taking a look.</p>
+  <section class="col" id="questions" aria-labelledby="ask-h">
+    <p class="eyebrow">10 · Open questions</p>
+    <h2 id="ask-h" data-sketch="underline">What I'd want to know</h2>
+    <div class="prose">
+      <ol class="questions">
+        <li>Are stuck sessions mostly unusual nights, or something else, like nothing appealing in the catalog?</li>
+        <li>Should everyone get the row, or only stuck viewers?</li>
+        <li>Will people tap chips at all, or should the row only adjust on its own?</li>
+        <li>How do you detect "stuck" on a TV without false positives?</li>
+      </ol>
+      <p>I built this from the outside, so I'd like to hear where it falls apart.</p>
+      <div class="about" id="about" data-sketch="box">
+        <p class="label">About me</p>
+        <p>I'm Uddhav, an MBA student at Emory's Goizueta Business School, graduating January 2027. Before that: digital banking at Ujjivan Small Finance Bank in India, a technical PM internship at Voysn, and founding Anvesa, an adventure-sports marketplace. I'm looking for product roles after graduation.</p>
+        <p>LinkedIn: <a href="https://www.linkedin.com/in/uddhavbhardwaj8">linkedin.com/in/uddhavbhardwaj8</a></p>
       </div>
     </div>
   </section>
 
   <section class="col" id="sources" aria-labelledby="sources-h">
-    <p class="eyebrow">Sources</p>
-    <h2 id="sources-h" data-sketch="underline">Where this comes from</h2>
+    <p class="eyebrow">Appendix</p>
+    <h2 id="sources-h" data-sketch="underline">Sources</h2>
     <div class="src-groups">
       <div class="src-group">
         <h3>How people pick what to watch</h3>
         <ul>
           <li><a href="https://gracenote.com/newsroom/new-gracenote-report-highlights-impact-of-ineffective-content-discovery-on-consumer-happiness-with-streaming/">Gracenote (Nielsen), 2025 State of Play</a><span class="what">Survey of 3,000 viewers in six countries: 12 minutes searching in the US (up from 10.5 in 2023), 19% would abandon a session after an unsuccessful search, 45% find streaming overwhelming, 49% willing to cancel over it.</span></li>
           <li><a href="https://www.cbsnews.com/amp/losangeles/news/study-finds-the-many-streaming-choices-overwhelm-audiences-steering-some-to-turn-the-tv-off">Nielsen, State of Play (2023)</a><span class="what">The earlier 10.5-minute figure.</span></li>
-          <li><a href="https://onlinelibrary.wiley.com/doi/10.1002/9781118783764.wbieme0085">Mood management theory, International Encyclopedia of Media Effects</a><span class="what">Overview, including the classic finding that stressed viewers chose relaxing programs and bored viewers chose exciting ones.</span></li>
+          <li><a href="https://onlinelibrary.wiley.com/doi/10.1002/9781118783764.wbieme0085">Mood management theory, International Encyclopedia of Media Effects</a><span class="what">Overview, including the finding that stressed viewers chose relaxing programs and bored viewers chose exciting ones.</span></li>
           <li><a href="http://arno.uvt.nl/show.cgi?fid=80148">Knobloch &amp; Zillmann (2002), "Mood Management via the Digital Jukebox," Journal of Communication</a><span class="what">People in worse moods chose more energetic, joyful music. About music, not TV.</span></li>
         </ul>
       </div>
@@ -762,10 +890,12 @@ svg.mark { position: absolute; left: -6px; top: -6px; pointer-events: none; over
         </ul>
       </div>
     </div>
-    <p class="disclaimer">Independent student case study, not affiliated with Netflix. Show titles and numbers in the prototype are made up. Survey figures are self-reported and cover streaming services in general.</p>
+    <p class="disclaimer">Independent student case study, not affiliated with Netflix. Show titles and numbers in the prototype and the sizing illustration are made up. Survey figures are self-reported and cover streaming services in general.</p>
   </section>
 
 </main>
+
+<style>.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }</style>
 
 <script src="https://cdn.jsdelivr.net/npm/roughjs@4.6.6/bundled/rough.js"></script>
 <script>
